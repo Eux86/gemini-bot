@@ -4,7 +4,7 @@ import { getService, Services } from './service-factory';
 
 class Bot {
 
-  readonly commandPrefix = '-';
+  readonly commandPrefix = '.';
   private client: Client;
 
   constructor() {

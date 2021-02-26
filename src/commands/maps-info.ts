@@ -2,11 +2,12 @@ import { ICommand } from ".";
 import { getService, Services } from "../service-factory";
 
 const mapsInfo: ICommand = {
-  name: 'maps-info',
+  name: 'map-info',
   description: 'Returns info about the available servers maps',
-  command: (msg: any, args: any) => {
+  command: async (msg: any, args: any) => {
       const mapsInfoService = getService(Services.MapsInfo);
-      msg.channel.send(mapsInfoService.getAll());
+      const response = await mapsInfoService.getAll();
+      msg.channel.send(response);
   },
 };
 

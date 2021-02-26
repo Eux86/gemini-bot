@@ -1,3 +1,3 @@
 export interface IMapsInfoService {
-  getAll: () => string;
+  getAll: () => Promise<string>;
 }
