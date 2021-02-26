@@ -4,10 +4,11 @@ import { getService, Services } from './service-factory';
 
 class Bot {
 
-  readonly commandPrefix = '.';
+  readonly commandPrefix = process.env.BOT_PREFIX || '.';
   private client: Client;
-
+  
   constructor() {
+    console.log(process.env.BOT_PREFIX);
     const settingsService = getService(Services.Settings);
 
     this.client = new Client();
