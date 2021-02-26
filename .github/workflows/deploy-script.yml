@@ -1,0 +1,36 @@
+name: Deploy
+
+on: [push]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Npm Install
+      run: npm i
+    - name: Npm Build
+      run: npm run build
+    - name: configure ssh connection
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      run: | 
+        mkdir -p ~/.ssh
+        ssh-keyscan -p ${{ secrets.TEST_PORT}} -t rsa ${{ secrets.TEST_HOST }} >> ~/.ssh/known_hosts
+        ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+        ssh-add - <<< "${{ secrets.SSH_KEY }}"
+    - name: test 1
+      env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      run: ssh pi@${{ secrets.TEST_HOST }} -p ${{ secrets.TEST_PORT}} 'touch cucu'
+    - name: Deploy
+      run: npm run deploy
+      env: 
+        DOCKER_HOST: ${{ secrets.DOCKER_HOST }}
+        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+
+    
+
+
