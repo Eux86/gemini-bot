@@ -20,10 +20,6 @@ jobs:
         ssh-keyscan -p ${{ secrets.TEST_PORT}} -t rsa ${{ secrets.TEST_HOST }} >> ~/.ssh/known_hosts
         ssh-agent -a $SSH_AUTH_SOCK > /dev/null
         ssh-add - <<< "${{ secrets.SSH_KEY }}"
-    - name: test 1
-      env:
-          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-      run: ssh pi@${{ secrets.TEST_HOST }} -p ${{ secrets.TEST_PORT}} 'touch cucu'
     - name: Deploy
       run: npm run deploy
       env: 

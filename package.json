@@ -6,11 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "tsc && node dist/main.js",
-    "docker-build": "docker build -t eux86/gemini-discord-bot .",
-    "docker-build-arm": "docker build -f arm.Dockerfile -t eux86/gemini-discord-bot:arm .",
-    "docker-push": "docker push eux86/gemini-discord-bot:latest",
-    "remote-create-image": "dotenv cross-var docker build -f arm.Dockerfile -t eux86/gemini-discord-bot .",
-    "remote-stop-and-remove-container": "dotenv cross-var docker stop gemini-bot || true && docker rm gemini-bot || true",
+    "remote-create-image": "dotenv -- cross-var docker build -f arm.Dockerfile -t eux86/gemini-discord-bot .",
+    "remote-stop-and-remove-container": "dotenv -- cross-var docker stop gemini-bot || true && docker rm gemini-bot || true",
     "remote-run-container": "dotenv -- cross-var docker run -d --name gemini-bot -e BOT_TOKEN=%BOT_TOKEN% eux86/gemini-discord-bot",
     "deploy": "dotenv cross-var echo Deploying to:%DOCKER_HOST% && npm run remote-create-image && npm run remote-stop-and-remove-container && npm run remote-run-container",
     "debug": "npm run build && node --nolazy --inspect-brk=9229 dist/main.js"
