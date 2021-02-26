@@ -26,3 +26,5 @@ jobs:
         DOCKER_HOST: ${{ secrets.DOCKER_HOST }}
         BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        DOCKER_IMAGE_NAME: eux86/gemini-discord-bot-prod
+        DOCKER_CONTAINER_NAME: gemini-discord-bot-prod
