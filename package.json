@@ -10,7 +10,8 @@
     "remote-stop-and-remove-container": "dotenv -- cross-var docker stop %DOCKER_CONTAINER_NAME% || true && docker rm %DOCKER_CONTAINER_NAME% || true",
     "remote-run-container": "dotenv -- cross-var docker run -d --name %DOCKER_CONTAINER_NAME% -e BOT_TOKEN=%BOT_TOKEN% %DOCKER_IMAGE_NAME%",
     "deploy": "dotenv cross-var echo Deploying to:%DOCKER_HOST% && npm run remote-create-image && npm run remote-stop-and-remove-container && npm run remote-run-container",
-    "debug": "npm run build && node --nolazy --inspect-brk=9229 dist/main.js"
+    "debug": "npm run build && node --nolazy --inspect-brk=9229 dist/main.js",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -24,7 +25,20 @@
     "typescript": "^4.2.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.13.8",
+    "@babel/preset-env": "^7.13.8",
+    "@babel/preset-typescript": "^7.13.0",
+    "@types/jest": "^26.0.20",
+    "@typescript-eslint/eslint-plugin": "^4.15.2",
+    "@typescript-eslint/parser": "^4.15.2",
+    "babel-jest": "^26.6.3",
     "cross-var": "^1.1.0",
-    "dotenv-cli": "^4.0.0"
+    "dotenv-cli": "^4.0.0",
+    "eslint": "^7.21.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^24.1.5",
+    "jest": "^26.6.3",
+    "jest-cli": "^26.6.3"
   }
 }

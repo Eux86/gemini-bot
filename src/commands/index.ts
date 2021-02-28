@@ -1,5 +1,5 @@
 import ping from './ping';
-import { ISettingsService } from "../models/settings-service";
+import { ISettingsService } from "../services/interfaces/settings-service";
 import mapsInfo from './maps-info';
 
 interface ICommand {

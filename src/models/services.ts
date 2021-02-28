@@ -1,5 +1,5 @@
-import { IMapsInfoService } from "./maps-info-service";
-import { ISettingsService } from "./settings-service";
+import { IMapsInfoService } from '../services/interfaces/maps-info-service';
+import { ISettingsService } from '../services/interfaces/settings-service';
 
 export interface IServices {
   settingsService: ISettingsService;

@@ -1,4 +1,4 @@
-import { ISettings, ISettingsService } from "../models/settings-service";
+import { ISettings, ISettingsService } from "./interfaces/settings-service";
 
 const fs = require('fs');
 

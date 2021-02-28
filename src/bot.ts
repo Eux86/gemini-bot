@@ -1,12 +1,14 @@
-import { Client, Collection, Channel, TextChannel } from 'discord.js';
+import {
+  Client, Collection, Channel, TextChannel,
+} from 'discord.js';
 import commands, { ICommand } from './commands';
 import { getService, Services } from './service-factory';
 
 class Bot {
-
   readonly commandPrefix = process.env.BOT_PREFIX || '.';
+
   private client: Client;
-  
+
   constructor() {
     console.log(process.env.BOT_PREFIX);
     const settingsService = getService(Services.Settings);
@@ -22,8 +24,8 @@ class Bot {
       // Clean and reads the command
       const args = msg.content.split(/ +/);
       const command = args.shift().toLowerCase();
-      console.log('command', clientCommands);
-      
+      // console.log('command', clientCommands);
+
       // Exception for command .help, it will describe all other commands
       if (command === `${this.commandPrefix}help`) {
         const helpText = this.getHelpText(commands);
@@ -70,8 +72,10 @@ class Bot {
 
   isTextChannel = (channel: Channel): channel is TextChannel => channel.type === 'text';
 
+  // eslint-disable-next-line no-shadow
   getHelpText = (commands: Array<ICommand>): string => {
     let helpText = '';
+    // eslint-disable-next-line no-restricted-syntax
     for (const command of commands) {
       helpText += `${command.name}: ${command.description}\n`;
     }
