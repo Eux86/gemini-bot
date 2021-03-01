@@ -28,6 +28,14 @@ module.exports = {
     }
   },
   rules: {
+    "max-len": "off",
+    "implicit-arrow-linebreak": "off",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["error", {
+      "vars": "all",
+      "args": "after-used",
+      "ignoreRestSiblings": false
+    }],
     'import/prefer-default-export': 0,
     "import/extensions": [
       "error",

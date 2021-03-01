@@ -1,11 +1,12 @@
-import { ICommand } from ".";
+import { ICommand } from '.';
 
 const ping: ICommand = {
-  name: 'ping',
+  name: ['ping'],
   description: 'test command to verify if the bot is still alive',
-  command: (msg: any, args: any) => {
-      msg.reply('pong');
-      msg.channel.send('pong');
+  isSecret: true,
+  command: (msg: any) => {
+    msg.reply('pong');
+    msg.channel.send('pong');
   },
 };
 

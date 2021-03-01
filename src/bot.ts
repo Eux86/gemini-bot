@@ -10,21 +10,23 @@ class Bot {
   private client: Client;
 
   constructor() {
-    console.log(process.env.BOT_PREFIX);
     const settingsService = getService(Services.Settings);
 
     this.client = new Client();
     const clientCommands = new Collection<string, ICommand>();
 
-    commands.forEach((command: ICommand) => {
-      clientCommands.set(`${this.commandPrefix}${command.name}`, command);
-    });
+    commands.forEach((command: ICommand) =>
+      command.name.forEach((name: string) =>
+        clientCommands.set(`${this.commandPrefix}${name}`, command)));
+
+    console.log(commands);
 
     this.client.on('message', (msg: any) => {
       // Clean and reads the command
       const args = msg.content.split(/ +/);
-      const command = args.shift().toLowerCase();
-      // console.log('command', clientCommands);
+      const command: string = args.shift().toLowerCase();
+
+      console.log('onmessage', command);
 
       // Exception for command .help, it will describe all other commands
       if (command === `${this.commandPrefix}help`) {
@@ -32,7 +34,8 @@ class Bot {
         msg.channel.send(helpText);
         return;
       }
-      if (!clientCommands.has(command)) return;
+      if (!clientCommands.find((cmd) => cmd.name.includes(command.substring(1)))) return;
+      console.log('found');
 
       // Cycles thorugh all the available commands
       try {
@@ -76,7 +79,7 @@ class Bot {
   getHelpText = (commands: Array<ICommand>): string => {
     let helpText = '';
     // eslint-disable-next-line no-restricted-syntax
-    for (const command of commands) {
+    for (const command of commands.filter((cmd) => !cmd.isSecret)) {
       helpText += `${command.name}: ${command.description}\n`;
     }
     return helpText;
