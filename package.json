@@ -8,7 +8,7 @@
     "start": "tsc && node dist/main.js",
     "remote-create-image": "dotenv -- cross-var docker build -f arm.Dockerfile -t %DOCKER_IMAGE_NAME% .",
     "remote-stop-and-remove-container": "dotenv -- cross-var docker stop %DOCKER_CONTAINER_NAME% || true && dotenv -- cross-var docker rm %DOCKER_CONTAINER_NAME% || true",
-    "remote-run-container": "dotenv -- cross-var docker run -d --name %DOCKER_CONTAINER_NAME% -e BOT_TOKEN=%BOT_TOKEN% %DOCKER_IMAGE_NAME%",
+    "remote-run-container": "dotenv -- cross-var docker run --restart=always -d --name %DOCKER_CONTAINER_NAME% -e BOT_TOKEN=%BOT_TOKEN% %DOCKER_IMAGE_NAME%",
     "deploy": "dotenv cross-var echo Deploying to:%DOCKER_HOST% && npm run remote-create-image && npm run remote-stop-and-remove-container && npm run remote-run-container",
     "debug": "npm run build && node --nolazy --inspect-brk=9229 dist/main.js",
     "test": "jest"
