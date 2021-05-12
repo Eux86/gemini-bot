@@ -1,4 +1,5 @@
-import { ISettings, ISettingsService } from "./interfaces/settings-service";
+// eslint-disable-next-line max-classes-per-file
+import { ISettings, ISettingsService } from './interfaces/settings-service';
 
 const fs = require('fs');
 
@@ -8,7 +9,9 @@ class DefaultSettings implements ISettings {
 
 export class SettingsService implements ISettingsService {
   private readonly SETTINGS_FILE_PATH = './settings.json';
+
   private static instance: SettingsService;
+
   private settings: ISettings | undefined = undefined;
 
   private constructor() {
@@ -26,32 +29,28 @@ export class SettingsService implements ISettingsService {
     return SettingsService.instance;
   }
 
-  public getSettingsAsync = async (): Promise<ISettings> => {
-    return new Promise((resolve: any, reject: any) => {
-      if (this.settings) {
-        resolve(this.settings);
-      } else {
-        fs.readFile(this.SETTINGS_FILE_PATH, 'utf8', (err: string, data: any) => {
-          if (err) {
-            reject(err);
-          } else {
-            this.settings = JSON.parse(data);
-            resolve(this.settings);
-          }
-        })
-      }
-    });
-  }
-
-  public setSettingsAsync = async (newSettings: ISettings): Promise<string | undefined> => {
-    return new Promise((resolve: any, reject: any) => {
-      fs.writeFile(this.SETTINGS_FILE_PATH, JSON.stringify(newSettings, null, 2), 'utf8', (err: string) => {
+  public getSettingsAsync = async (): Promise<ISettings> => new Promise((resolve: any, reject: any) => {
+    if (this.settings) {
+      resolve(this.settings);
+    } else {
+      fs.readFile(this.SETTINGS_FILE_PATH, 'utf8', (err: string, data: any) => {
         if (err) {
           reject(err);
         } else {
-          resolve();
+          this.settings = JSON.parse(data);
+          resolve(this.settings);
         }
       });
+    }
+  })
+
+  public setSettingsAsync = async (newSettings: ISettings): Promise<string | undefined> => new Promise((resolve: any, reject: any) => {
+    fs.writeFile(this.SETTINGS_FILE_PATH, JSON.stringify(newSettings, null, 2), 'utf8', (err: string) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
     });
-  }
+  })
 }

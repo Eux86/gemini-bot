@@ -3,7 +3,7 @@ module.exports = {
     browser: true,
     commonjs: true,
     es6: true,
-    "jest/globals": true
+    'jest/globals': true,
   },
   extends: [
     'airbnb-base',
@@ -18,34 +18,36 @@ module.exports = {
   },
   plugins: [
     '@typescript-eslint',
-    "jest",
+    'jest',
   ],
   settings: {
-    "import/resolver": {
-        "node": {
-            "extensions": [".js", ".jsx", ".ts", ".tsx"]
-        }
-    }
+    'import/resolver': {
+      node: {
+        extensions: ['.ts'],
+      },
+    },
   },
   rules: {
-    "max-len": "off",
-    "implicit-arrow-linebreak": "off",
-    "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": ["error", {
-      "vars": "all",
-      "args": "after-used",
-      "ignoreRestSiblings": false
+    'max-len': 'off',
+    'implicit-arrow-linebreak': 'off',
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': ['error'],
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': ['error', {
+      vars: 'all',
+      args: 'after-used',
+      ignoreRestSiblings: false,
     }],
     'import/prefer-default-export': 0,
-    "import/extensions": [
-      "error",
-      "ignorePackages",
+    'import/extensions': [
+      'error',
+      'ignorePackages',
       {
-        "js": "never",
-        "jsx": "never",
-        "ts": "never",
-        "tsx": "never"
-      }
+        js: 'never',
+        jsx: 'never',
+        ts: 'never',
+        tsx: 'never',
+      },
     ],
   },
 };
