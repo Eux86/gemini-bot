@@ -21,10 +21,12 @@ class Bot {
 
     console.log(commands);
 
-    this.client.on('message', (msg: any) => {
+    this.client.on('message', (msg) => {
       // Clean and reads the command
       const args = msg.content.split(/ +/);
-      const command: string = args.shift().toLowerCase();
+      const command: string | undefined = args?.shift()?.toLowerCase();
+
+      if (!command) return;
 
       console.log('onmessage', command);
 
@@ -76,10 +78,10 @@ class Bot {
   isTextChannel = (channel: Channel): channel is TextChannel => channel.type === 'text';
 
   // eslint-disable-next-line no-shadow
-  getHelpText = (commands: Array<ICommand>): string => {
+  getHelpText = (cmds: Array<ICommand>): string => {
     let helpText = '';
     // eslint-disable-next-line no-restricted-syntax
-    for (const command of commands.filter((cmd) => !cmd.isSecret)) {
+    for (const command of cmds.filter((cmd) => !cmd.isSecret)) {
       helpText += `${command.name}: ${command.description}\n`;
     }
     return helpText;

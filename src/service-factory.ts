@@ -6,28 +6,33 @@ import { ISettingsService } from './services/interfaces/settings-service';
 import { MapsInfoService } from './services/maps-info';
 import { CboxParser } from './services/parsers/cbox-parser';
 import { SettingsService } from './services/settings';
+import { IRollcallService } from './services/interfaces/rollcall-service';
+import { RollcallService } from './services/rollcall-service/rollcall-service';
 
 export enum Services {
   Settings = 'settings',
   MapsInfo = 'mapsinfo',
   HttpHelper = 'HttpHelper',
   CombatBoxParser = 'CombatBoxParser',
+  Rollcall = 'Rollcall',
 }
 
 export type ServiceTypeMapping<T> =
   T extends Services.MapsInfo ? IMapsInfoService :
-  T extends Services.Settings ? ISettingsService :
-  T extends Services.HttpHelper ? IHttpHelperService :
-  T extends Services.CombatBoxParser ? IGameServerInfoParser :
-  never;
+    T extends Services.Settings ? ISettingsService :
+      T extends Services.HttpHelper ? IHttpHelperService :
+        T extends Services.CombatBoxParser ? IGameServerInfoParser :
+          T extends Services.Rollcall ? IRollcallService :
+            never;
 
 export class ServiceFactory {
   private static instance: ServiceFactory;
 
-  private instances: { [key in Services]?: unknown } = {}
+  private instances: { [key in Services]?: unknown } = {};
 
   // eslint-disable-next-line no-useless-constructor,no-empty-function
-  private constructor() { }
+  private constructor() {
+  }
 
   public static GetInstance = () => {
     if (!ServiceFactory.instance) {
@@ -36,7 +41,7 @@ export class ServiceFactory {
     return ServiceFactory.instance;
   };
 
-  public getService = <T extends Services>(serviceIdentifier: T): ServiceTypeMapping<T> => this.getSingleton(serviceIdentifier)
+  public getService = <T extends Services>(serviceIdentifier: T): ServiceTypeMapping<T> => this.getSingleton(serviceIdentifier);
 
   private getSingleton = <T extends Services>(serviceIdentifier: T): ServiceTypeMapping<T> => {
     let singleton = this.instances[serviceIdentifier];
@@ -54,13 +59,17 @@ export class ServiceFactory {
         case Services.CombatBoxParser:
           singleton = new CboxParser(this.getSingleton(Services.HttpHelper));
           break;
+        case Services.Rollcall:
+          singleton = new RollcallService();
+          break;
         default:
           throw new Error(`No concrete class provided for service${serviceIdentifier}`);
       }
       this.instances[serviceIdentifier] = singleton;
     }
     return singleton as ServiceTypeMapping<T>;
-  }
+  };
 }
 
-export const getService = <T extends Services>(serviceIdentifier: T) => ServiceFactory.GetInstance().getService(serviceIdentifier);
+export const getService = <T extends Services>(serviceIdentifier: T) => ServiceFactory.GetInstance()
+  .getService(serviceIdentifier);
