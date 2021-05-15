@@ -1,11 +1,13 @@
 import { RollcallService } from '../src/services/rollcall-service/rollcall-service';
 
 describe('Rollcalls', () => {
+  const mockChannelName = 'mock-channel-name';
+
   describe('no rollcalls are created', () => {
     it('should return undefined when getting today\'s rollcall', async () => {
       const manager = new RollcallService();
 
-      const todayRollcall = manager.getToday();
+      const todayRollcall = manager.getToday(mockChannelName);
 
       expect(todayRollcall)
         .toBeUndefined();
@@ -14,8 +16,8 @@ describe('Rollcalls', () => {
     it('should create a new rollcall successfully', async () => {
       const manager = new RollcallService();
 
-      manager.startToday();
-      const todayRollcall = manager.getToday();
+      manager.startToday(mockChannelName);
+      const todayRollcall = manager.getToday(mockChannelName);
 
       expect(todayRollcall)
         .not
@@ -25,20 +27,20 @@ describe('Rollcalls', () => {
 
   describe('A rollcall exists', () => {
     const manager = new RollcallService();
-    manager.startToday();
-    const todayRollcall = manager.getToday();
+    manager.startToday(mockChannelName);
+    const todayRollcall = manager.getToday(mockChannelName);
 
     it('should throw an exception if a new rollcall is created', () => {
-      expect(() => manager.startToday()).toThrowError('ROLLCALL_ALREADY_EXISTS');
+      expect(() => manager.startToday(mockChannelName)).toThrowError('ROLLCALL_ALREADY_EXISTS');
     });
 
-    it('should not throw an exeption adding a new participant if it doesn\'t exist already', () => {
+    it('should not throw an exception adding a new participant if it doesn\'t exist already', () => {
       expect(() => todayRollcall?.addParticipant('xxx'))
         .not
         .toThrowError();
     });
 
-    it('should throw an expecption adding an already existing participant', () => {
+    it('should throw an exception adding an already existing participant', () => {
       expect(() => todayRollcall?.addParticipant('xxx'))
         .toThrowError();
     });
@@ -47,9 +49,11 @@ describe('Rollcalls', () => {
       expect(() => todayRollcall?.removeParticipant('xxx'))
         .not
         .toThrowError();
+      expect(todayRollcall?.getParticipants().length).toBe(0);
+      expect(todayRollcall?.getNotParticipants()).toStrictEqual(['xxx']);
     });
 
-    it('should throw an exepction if participant not registered', () => {
+    it('should throw an exception if participant is already not registered', () => {
       expect(() => todayRollcall?.removeParticipant('xxx'))
         .toThrowError();
     });
@@ -65,7 +69,7 @@ describe('Rollcalls', () => {
       jest
         .spyOn(global, 'Date')
         .mockImplementation(() => yesterday as unknown as string);
-      manager.startToday();
+      manager.startToday(mockChannelName);
 
       expect(manager.getAll().length)
         .toBe(1);
@@ -73,7 +77,7 @@ describe('Rollcalls', () => {
       jest
         .spyOn(global, 'Date')
         .mockImplementation(() => today as unknown as string);
-      manager.startToday();
+      manager.startToday(mockChannelName);
 
       expect(manager.getAll().length)
         .toBe(1);

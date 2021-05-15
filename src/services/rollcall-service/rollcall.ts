@@ -3,11 +3,14 @@ import { Message } from 'discord.js';
 export class Rollcall {
   private participants: string[] = [];
 
+  private notParticipants: string[] = [];
+
   private message: Message | undefined;
 
   // eslint-disable-next-line no-useless-constructor
   constructor(
-    public date: Date = new Date(),
+    public readonly channelName: string,
+    public readonly date: Date = new Date(),
     // eslint-disable-next-line no-empty-function
   ) {
   }
@@ -17,7 +20,9 @@ Rollcall started.
 Join using .here-test.
 Remove your presence using .not-here.
 
-${this.participants.length} present${this.participants.length > 1 ? 's' : ''}: ${this.participants.join(', ')}`;
+${this.participants.length} present${this.participants.length > 1 ? 's' : ''}: ${this.participants.join(', ')}
+${this.notParticipants.length} NOT present${this.participants.length > 1 ? 's' : ''}: ${this.notParticipants.join(', ')}
+`;
 
   getMessage(): Message | undefined {
     return this.message;
@@ -28,6 +33,7 @@ ${this.participants.length} present${this.participants.length > 1 ? 's' : ''}: $
   }
 
   public addParticipant = (name: string) => {
+    this.notParticipants = this.notParticipants.filter((participant) => participant !== name);
     if (this.participants.find((registered) => registered === name)) {
       throw new Error('ALREADY_REGISTERED');
     }
@@ -35,9 +41,14 @@ ${this.participants.length} present${this.participants.length > 1 ? 's' : ''}: $
   };
 
   public removeParticipant = (name: string) => {
-    if (!this.participants.find((registered) => registered === name)) {
-      throw new Error('NOT_REGISTERED');
+    this.participants = this.participants.filter((participant) => participant !== name);
+    if (this.notParticipants.find((registered) => registered === name)) {
+      throw new Error('ALREADY_NOT_REGISTERED');
     }
-    this.participants = this.participants.filter((registered) => registered !== name);
+    this.notParticipants.push(name);
   };
+
+  public getParticipants = () => this.participants;
+
+  public getNotParticipants = () => this.notParticipants;
 }

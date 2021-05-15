@@ -8,14 +8,14 @@ const notHere: ICommand = {
   command: async (msg) => {
     const rollcallService = getService(Services.Rollcall);
     try {
-      const todayRollcall = rollcallService.getToday();
+      const todayRollcall = rollcallService.getToday(msg.channel.id);
       todayRollcall?.removeParticipant(msg.author.username);
       await todayRollcall?.getMessage()
         ?.edit(todayRollcall?.generateMessageContent());
       await msg.delete({ timeout: 1 });
     } catch (e) {
       switch (e.message || e) {
-        case 'NOT_REGISTERED':
+        case 'ALREADY_NOT_REGISTERED':
           msg.channel.send('You are not registered in today\'s rollcall');
           break;
         case 'Missing Permissions':

@@ -8,7 +8,7 @@ const rollcall: ICommand = {
   command: async (msg) => {
     const rollcallService = getService(Services.Rollcall);
     try {
-      const todayRollcall = rollcallService.startToday();
+      const todayRollcall = rollcallService.startToday(msg.channel.id);
       const rollcallMessage = await msg.channel.send(todayRollcall.generateMessageContent());
       todayRollcall.setMessage(rollcallMessage);
     } catch (e) {

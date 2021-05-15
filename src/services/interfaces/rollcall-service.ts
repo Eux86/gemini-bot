@@ -1,9 +1,9 @@
 import { Rollcall } from '../rollcall-service/rollcall';
 
 export interface IRollcallService {
-  getAll: () => Rollcall[];
+  getAll: (channelName: string) => Rollcall[];
 
-  startToday: () => Rollcall;
+  startToday: (channelName: string) => Rollcall;
 
-  getToday: () => Rollcall | undefined;
+  getToday: (channelName: string) => Rollcall | undefined;
 }
