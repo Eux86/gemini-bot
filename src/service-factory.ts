@@ -8,6 +8,8 @@ import { CboxParser } from './services/parsers/cbox-parser';
 import { SettingsService } from './services/settings';
 import { IRollcallService } from './services/interfaces/rollcall-service';
 import { RollcallService } from './services/rollcall-service/rollcall-service';
+import { IDbService } from './services/interfaces/db-service';
+import { DbService } from './services/db/db-service';
 
 export enum Services {
   Settings = 'settings',
@@ -15,6 +17,7 @@ export enum Services {
   HttpHelper = 'HttpHelper',
   CombatBoxParser = 'CombatBoxParser',
   Rollcall = 'Rollcall',
+  Db = 'Db',
 }
 
 export type ServiceTypeMapping<T> =
@@ -23,6 +26,7 @@ export type ServiceTypeMapping<T> =
       T extends Services.HttpHelper ? IHttpHelperService :
         T extends Services.CombatBoxParser ? IGameServerInfoParser :
           T extends Services.Rollcall ? IRollcallService :
+            T extends Services.Db ? IDbService :
             never;
 
 export class ServiceFactory {
@@ -61,6 +65,9 @@ export class ServiceFactory {
           break;
         case Services.Rollcall:
           singleton = new RollcallService();
+          break;
+        case Services.Db:
+          singleton = new DbService();
           break;
         default:
           throw new Error(`No concrete class provided for service${serviceIdentifier}`);

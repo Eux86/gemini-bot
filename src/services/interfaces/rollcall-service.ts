@@ -6,4 +6,6 @@ export interface IRollcallService {
   startToday: (channelName: string) => Rollcall;
 
   getToday: (channelName: string) => Rollcall | undefined;
+
+  save: () => Promise<void>;
 }

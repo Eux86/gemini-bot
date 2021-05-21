@@ -13,6 +13,7 @@ const here: ICommand = {
       await todayRollcall?.getMessage()
         ?.edit(todayRollcall?.generateMessageContent());
       await msg.delete({ timeout: 1 });
+      rollcallService.save();
     } catch (e) {
       switch (e.message || e) {
         case 'ALREADY_REGISTERED':
