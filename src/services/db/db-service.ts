@@ -1,25 +1,39 @@
+import { Firestore } from '@google-cloud/firestore';
 import { Rollcall } from '../rollcall-service/rollcall';
 import { IDbService } from '../interfaces/db-service';
-
-const { Firestore } = require('@google-cloud/firestore');
 
 export class DbService implements IDbService {
   private readonly firestore = new Firestore();
 
   public saveRollcall = async (rollcall: Rollcall) => {
-    const { channelName, date } = rollcall;
+    const {
+      channelName, date, participants, notParticipants,
+    } = rollcall;
     const rollcallDocument = this.firestore.doc(`rollcalls/${channelName}_${date?.getTime()}`);
     await rollcallDocument.set({
       channelName,
       date,
-      participants: rollcall.getParticipants(),
-      nonParticipants: rollcall.getNotParticipants(),
+      participants,
+      notParticipants,
     });
   };
 
   public deleteRollcall = async (rollcall: Rollcall) => {
-    const { channelName } = rollcall;
+    const { channelName, date } = rollcall;
     const rollcallDocument = this.firestore.doc(`rollcalls/${channelName}_${date?.getTime()}`);
-    rollcallDocument.delete();
+    await rollcallDocument.delete();
+  };
+
+  public getRollcallByDateAndChannel = async (date: Date, channelName: string) => {
+    const rollcallsRef = this.firestore.collection('rollcalls');
+    let query = rollcallsRef.where('date', '==', date.getTime());
+    query = query.where('channelName', '==', channelName);
+    const res = await query.get();
+    const todaysRef = res.docs[0]?.ref.path;
+    if (!todaysRef) {
+      return undefined;
+    }
+    const rollcall = await this.firestore.doc(todaysRef).get();
+    return rollcall.data() as Rollcall;
   };
 }

@@ -6,7 +6,7 @@ const here: ICommand = {
   description: 'Add own participation to current rollcall',
   isSecret: false,
   command: async (msg) => {
-    const rollcallService = getService(Services.Rollcall);
+    const rollcallService = getService(Services.Rollcalls);
     try {
       const todayRollcall = rollcallService.getToday(msg.channel.id);
       todayRollcall?.addParticipant(msg.author.username);

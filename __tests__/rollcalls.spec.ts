@@ -1,11 +1,11 @@
-import { RollcallService } from '../src/services/rollcall-service/rollcall-service';
+import { RollcallsService } from '../src/services/rollcall-service/rollcalls-service';
 
 describe('Rollcalls', () => {
   const mockChannelName = 'mock-channel-name';
 
   describe('no rollcalls are created', () => {
     it('should return undefined when getting today\'s rollcall', async () => {
-      const manager = new RollcallService();
+      const manager = new RollcallsService();
 
       const todayRollcall = manager.getToday(mockChannelName);
 
@@ -14,7 +14,7 @@ describe('Rollcalls', () => {
     });
 
     it('should create a new rollcall successfully', async () => {
-      const manager = new RollcallService();
+      const manager = new RollcallsService();
 
       manager.startToday(mockChannelName);
       const todayRollcall = manager.getToday(mockChannelName);
@@ -26,7 +26,7 @@ describe('Rollcalls', () => {
   });
 
   describe('A rollcall exists', () => {
-    const manager = new RollcallService();
+    const manager = new RollcallsService();
     manager.startToday(mockChannelName);
     const todayRollcall = manager.getToday(mockChannelName);
 
@@ -61,7 +61,7 @@ describe('Rollcalls', () => {
 
   describe('old rollcalls exist', () => {
     it('should remove old rollcalls when creating a new one', () => {
-      const manager = new RollcallService();
+      const manager = new RollcallsService();
 
       const yesterday = new Date(2000, 1, 1, 0, 0, 0);
       const today = new Date(2000, 1, 2, 0, 0, 0);

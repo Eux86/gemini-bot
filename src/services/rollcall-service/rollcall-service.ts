@@ -1,41 +1,58 @@
 import { Rollcall } from './rollcall';
 import { getService, Services } from '../../service-factory';
 import { IRollcallService } from '../interfaces/rollcall-service';
+import { Message } from 'discord.js';
 
-export class RollcallService implements IRollcallService{
-  private rollcalls: Rollcall[] = [];
+export class RollcallService implements IRollcallService {
+  public generateMessageContent = (rollcall: Rollcall) => `
+Rollcall started. 
+Join using .here-test.
+Remove your presence using .not-here.
 
-  constructor() {
-    // const dbService = getService(Services.Db);
-  }
+${rollcall.participants.length} present${rollcall.participants.length > 1 ? 's' : ''}: ${rollcall.participants.join(', ')}
+${rollcall.notParticipants.length} NOT present${rollcall.participants.length > 1 ? 's' : ''}: ${rollcall.notParticipants.join(', ')}
+`;
 
-  public getAll = () => this.rollcalls;
-
-  public startToday = (channelName: string) => {
-    this.cleanOldRollcalls();
-
-    if (this.getToday(channelName)) {
-      throw new Error('ROLLCALL_ALREADY_EXISTS');
-    }
-
-    const newRollcall = new Rollcall(channelName);
-    this.rollcalls.push(newRollcall);
+  public create = async (channelName: string) => {
+    const newRollcall = {
+      participants: [],
+      notParticipants: [],
+      channelName,
+      message: undefined,
+      date: new Date(),
+    };
+    await this.saveRollcall(newRollcall);
     return newRollcall;
   }
 
-  public getToday = (channelName: string): Rollcall | undefined => this.rollcalls.find((rollcall) =>
-    rollcall.date.setHours(0, 0, 0, 0) === new Date().setHours(0, 0, 0, 0)
-    && rollcall.channelName === channelName);
+  public addParticipant = (rollcall: Rollcall, name: string) => {
+    if (rollcall.participants.find((registered) => registered === name)) {
+      throw new Error('ALREADY_REGISTERED');
+    }
+    return this.saveRollcall({
+      ...rollcall,
+      notParticipants: rollcall.notParticipants.filter((participant) => participant !== name),
+      participants: [...rollcall.participants, name],
+    });
+  };
 
-  public save = async () => {
-    const dbServidce = getService(Services.Db);
-    const savePromises = this.rollcalls.map((rollcall) => dbServidce.saveRollcall(rollcall));
-    await Promise.all(savePromises);
+  public removeParticipant = (rollcall: Rollcall, name: string) => {
+    if (rollcall.notParticipants.find((registered) => registered === name)) {
+      throw new Error('ALREADY_NOT_REGISTERED');
+    }
+    return this.saveRollcall({
+      ...rollcall,
+      participants: rollcall.participants.filter((participant) => participant !== name),
+      notParticipants: [...rollcall.notParticipants, name],
+    });
+  };
+
+  private saveRollcall = async (rollcall: Rollcall) => getService(Services.Db).saveRollcall(rollcall)
+
+  bindToMessage(rollcall: Rollcall, message: Message): Promise<void> {
+    return this.saveRollcall({
+      ...rollcall,
+      message,
+    });
   }
-
-  private cleanOldRollcalls = () => {
-    this.rollcalls = this.rollcalls.filter((rc) => this.notInThePast(rc.date));
-  }
-
-  private notInThePast = (date: Date) => date.setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0);
 }

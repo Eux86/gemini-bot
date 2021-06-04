@@ -6,11 +6,13 @@ const rollcall: ICommand = {
   description: 'Organize a rollcall for today',
   isSecret: false,
   command: async (msg) => {
+    const rollcallsService = getService(Services.Rollcalls);
     const rollcallService = getService(Services.Rollcall);
     try {
-      const todayRollcall = rollcallService.startToday(msg.channel.id);
-      const rollcallMessage = await msg.channel.send(todayRollcall.generateMessageContent());
-      todayRollcall.setMessage(rollcallMessage);
+      const todayRollcall = await rollcallsService.startToday(msg.channel.id);
+      const messageContent = rollcallService.generateMessageContent(todayRollcall);
+      const rollcallMessage = await msg.channel.send(messageContent);
+      rollcallService.bindToMessage(todayRollcall, rollcallMessage);
     } catch (e) {
       switch (e.message || e) {
         case 'ROLLCALL_ALREADY_EXISTS':
