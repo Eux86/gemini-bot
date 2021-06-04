@@ -17,7 +17,7 @@ export class Rollcall {
 
   public generateMessageContent = () => `
 Rollcall started. 
-Join using .here-test.
+Join using .here.
 Remove your presence using .not-here.
 
 ${this.participants.length} present${this.participants.length > 1 ? 's' : ''}: ${this.participants.join(', ')}
