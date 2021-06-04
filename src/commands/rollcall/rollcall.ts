@@ -2,7 +2,7 @@ import { getService, Services } from '../../service-factory';
 import { ICommand } from '../index';
 
 const rollcall: ICommand = {
-  name: ['rollcall-test'],
+  name: ['rollcall'],
   description: 'Organize a rollcall for today',
   isSecret: false,
   command: async (msg) => {
