@@ -1,11 +1,17 @@
 import { RollcallsService } from '../src/services/rollcall-service/rollcalls-service';
+import { getService, Services } from '../src/service-factory';
+import { IDbService } from '../src/services/interfaces/db-service';
+
+jest.mock('../src/services/db/db-service',(): IDbService => ({
+  saveRollcall: () => {}
+}));
 
 describe('Rollcalls', () => {
   const mockChannelName = 'mock-channel-name';
 
   describe('no rollcalls are created', () => {
     it('should return undefined when getting today\'s rollcall', async () => {
-      const manager = new RollcallsService();
+      const manager = getService(Services.Rollcalls);
 
       const todayRollcall = manager.getToday(mockChannelName);
 

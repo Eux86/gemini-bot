@@ -1,5 +1,5 @@
-import { Rollcall } from '../rollcall-service/rollcall';
 import { Message } from 'discord.js';
+import { Rollcall } from '../../models/rollcall';
 
 export interface IRollcallService {
   generateMessageContent: (rollcall: Rollcall) => string;

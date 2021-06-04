@@ -1,12 +1,12 @@
-import { Rollcall } from './rollcall';
+import { Message } from 'discord.js';
+import { Rollcall } from '../../models/rollcall';
 import { getService, Services } from '../../service-factory';
 import { IRollcallService } from '../interfaces/rollcall-service';
-import { Message } from 'discord.js';
 
 export class RollcallService implements IRollcallService {
   public generateMessageContent = (rollcall: Rollcall) => `
 Rollcall started. 
-Join using .here-test.
+Join using .here.
 Remove your presence using .not-here.
 
 ${rollcall.participants.length} present${rollcall.participants.length > 1 ? 's' : ''}: ${rollcall.participants.join(', ')}

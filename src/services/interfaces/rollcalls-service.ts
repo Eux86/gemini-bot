@@ -1,4 +1,4 @@
-import { Rollcall } from '../rollcall-service/rollcall';
+import { Rollcall } from '../../models/rollcall';
 
 export interface IRollcallsService {
   startToday: (channelName: string) => Promise<Rollcall>;

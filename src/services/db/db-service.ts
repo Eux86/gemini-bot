@@ -1,5 +1,5 @@
 import { Firestore } from '@google-cloud/firestore';
-import { Rollcall } from '../rollcall-service/rollcall';
+import { Rollcall } from '../../models/rollcall';
 import { IDbService } from '../interfaces/db-service';
 
 export class DbService implements IDbService {

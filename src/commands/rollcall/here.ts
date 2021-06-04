@@ -6,14 +6,17 @@ const here: ICommand = {
   description: 'Add own participation to current rollcall',
   isSecret: false,
   command: async (msg) => {
-    const rollcallService = getService(Services.Rollcalls);
+    const rollcallsService = getService(Services.Rollcalls);
+    const rollcallService = getService(Services.Rollcall);
     try {
-      const todayRollcall = rollcallService.getToday(msg.channel.id);
-      todayRollcall?.addParticipant(msg.author.username);
-      await todayRollcall?.getMessage()
-        ?.edit(todayRollcall?.generateMessageContent());
+      const todayRollcall = await rollcallsService.getToday(msg.channel.id);
+      if (!todayRollcall) {
+        msg.channel.send('There is no rollcall yet :/ Start a new rollcall first!');
+        return;
+      }
+      rollcallService.addParticipant(todayRollcall, msg.author.username);
+      await todayRollcall?.message?.edit((rollcallService.generateMessageContent(todayRollcall)));
       await msg.delete({ timeout: 1 });
-      rollcallService.save();
     } catch (e) {
       switch (e.message || e) {
         case 'ALREADY_REGISTERED':

@@ -1,4 +1,4 @@
-import { Rollcall } from './rollcall';
+import { Rollcall } from '../../models/rollcall';
 import { getService, Services } from '../../service-factory';
 import { IRollcallsService } from '../interfaces/rollcalls-service';
 import { RollcallService } from './rollcall-service';
