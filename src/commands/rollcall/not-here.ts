@@ -8,10 +8,16 @@ const notHere: ICommand = {
   command: async (msg) => {
     const rollcallService = getService(Services.Rollcall);
     try {
-      const todayRollcall = rollcallService.getToday(msg.channel.id);
-      todayRollcall?.removeParticipant(msg.author.username);
-      await todayRollcall?.getMessage()
-        ?.edit(todayRollcall?.generateMessageContent());
+      const todayRollcall = await rollcallService.getToday(msg.channel.id);
+      if (!todayRollcall) {
+        msg.channel.send('🤦‍ ️Start a rollcall first!');
+        return;
+      }
+      await rollcallService.removeParticipant(todayRollcall, msg.author.username);
+      if (todayRollcall.messageId) {
+        const rollcallMessage = await msg.channel.messages.fetch(todayRollcall.messageId);
+        await rollcallMessage.edit((rollcallService.generateMessageContent(todayRollcall)));
+      }
       await msg.delete({ timeout: 1 });
     } catch (e) {
       switch (e.message || e) {

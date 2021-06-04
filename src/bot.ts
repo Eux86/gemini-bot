@@ -1,6 +1,4 @@
-import {
-  Client, Collection, Channel, TextChannel,
-} from 'discord.js';
+import { Channel, Client, Collection, TextChannel, } from 'discord.js';
 import commands, { ICommand } from './commands';
 import { getService, Services } from './service-factory';
 
@@ -65,6 +63,8 @@ class Bot {
     });
 
     this.client.login(process.env.BOT_TOKEN);
+
+    getService(Services.RollcalRepo);
   }
 
   broadcastOnAllChannels = (message: string) => {

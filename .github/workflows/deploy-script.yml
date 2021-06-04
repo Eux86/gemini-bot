@@ -15,16 +15,19 @@ jobs:
     - name: configure ssh connection
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-      run: | 
+      run: |
         mkdir -p ~/.ssh
         ssh-keyscan -p ${{ secrets.TEST_PORT}} -t rsa ${{ secrets.TEST_HOST }} >> ~/.ssh/known_hosts
         ssh-agent -a $SSH_AUTH_SOCK > /dev/null
         ssh-add - <<< "${{ secrets.SSH_KEY }}"
     - name: Deploy
       run: npm run deploy
-      env: 
+      env:
         DOCKER_HOST: ${{ secrets.DOCKER_HOST }}
         BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         DOCKER_IMAGE_NAME: eux86/gemini-discord-bot-prod
         DOCKER_CONTAINER_NAME: gemini-discord-bot-prod
+        client_email: discord-bot-1@gemini-bot-314114.iam.gserviceaccount.com
+        project_id: gemini-bot-314114
+        private_key: ${{ secrets.PRIVATE_KEY }}

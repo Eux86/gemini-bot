@@ -8,6 +8,7 @@ import here from './rollcall/here';
 import notHere from './rollcall/not-here';
 import hereTest from './rollcall/here-test';
 import rollcallTest from './rollcall/rollcall-test';
+import rollcallPull from './rollcall/rollcall-pull';
 
 interface ICommand {
   name: string[];
@@ -17,4 +18,4 @@ interface ICommand {
 }
 
 export { ICommand };
-export default [ping, mapsInfo, borguddio, rollcall, here, notHere, hereTest, rollcallTest];
+export default [ping, mapsInfo, borguddio, rollcall, here, notHere, hereTest, rollcallTest, rollcallPull];

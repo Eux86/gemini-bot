@@ -1,9 +1,15 @@
-import { Rollcall } from '../rollcall-service/rollcall';
+import { Message } from 'discord.js';
+import { IRollcall } from '../../models/rollcall';
 
 export interface IRollcallService {
-  getAll: (channelName: string) => Rollcall[];
-
-  startToday: (channelName: string) => Rollcall;
-
-  getToday: (channelName: string) => Rollcall | undefined;
+  generateMessageContent: (rollcall: IRollcall) => string;
+  create: (channelName: string) => IRollcall;
+  addParticipant: (rollcall: IRollcall, name: string) => Promise<void>;
+  removeParticipant: (rollcall: IRollcall, name: string) => Promise<void>;
+  bindToMessage: (rollcall: IRollcall, message: Message) => Promise<void>;
+  startToday: (channelName: string) => Promise<IRollcall>;
+  getToday: (channelName: string) => Promise<IRollcall | undefined>
+  getParticipants: (rollcall: IRollcall) => readonly string[];
+  getNotParticipants: (rollcall: IRollcall) => readonly string[];
+  get: () => Promise<IRollcall[]>;
 }
