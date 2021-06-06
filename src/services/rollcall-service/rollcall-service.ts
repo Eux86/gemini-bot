@@ -29,9 +29,10 @@ export class RollcallService implements IRollcallService {
   }
 
   public generateMessageContent = (rollcall: IRollcall) => `
-Rollcall started. 
-Join using .here.
-Remove your presence using .not-here.
+Rollcall started. Available commands: 
+here: join the rollcall
+not-here: remove your presence from the rollcall
+rollcall-pull: pulls down the rollcall message
 
 ${rollcall.participants.length} present${rollcall.participants.length > 1 ? 's' : ''}: ${rollcall.participants.join(', ')}
 ${rollcall.notParticipants.length} NOT present${rollcall.participants.length > 1 ? 's' : ''}: ${rollcall.notParticipants.join(', ')}
@@ -63,15 +64,15 @@ ${rollcall.notParticipants.length} NOT present${rollcall.participants.length > 1
     this.rollcalls = this.rollcalls.filter((rc) => this.notInThePast(rc.date));
   }
 
-  private makeToday = (date: Date) => date.setHours(0, 0, 0, 0);
+  // private makeToday = (date: Date) => date.setHours(0, 0, 0, 0);
 
   private notInThePast = (date: Date) => date.setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0);
 
-  public create = async (channelName: string) => ({
+  public create = (channelName: string): IRollcall => ({
     participants: [],
     notParticipants: [],
     channelName,
-    message: undefined,
+    messageId: undefined,
     date: new Date(),
   })
 
