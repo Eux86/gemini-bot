@@ -1,13 +1,13 @@
 import { Message } from 'discord.js';
 
-export interface Rollcall {
-  readonly participants: readonly string[];
+export interface IRollcall {
+  participants: string[];
 
-  readonly notParticipants: readonly string[];
+  notParticipants: string[];
 
-  readonly message: Message | undefined;
+  message: Message | undefined;
 
-  readonly date: Date;
+  date: Date;
 
-  readonly channelName: string | undefined;
+  channelName: string | undefined;
 }

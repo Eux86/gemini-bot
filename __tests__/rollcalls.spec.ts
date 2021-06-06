@@ -1,29 +1,42 @@
-import { RollcallsService } from '../src/services/rollcall-service/rollcalls-service';
-import { getService, Services } from '../src/service-factory';
-import { IDbService } from '../src/services/interfaces/db-service';
+import { RollcallService } from '../src/services/rollcall-service/rollcall-service';
+import { RollcallRepo } from '../src/services/db/rollcall-repo';
+import { IRollcall } from '../src/models/rollcall';
 
-jest.mock('../src/services/db/db-service',(): IDbService => ({
-  saveRollcall: () => {}
-}));
+const mockChannelName = 'mock-channel-name';
+const repo = new RollcallRepo();
+const mockedRollcalls: IRollcall[] = [
+  {
+    channelName: mockChannelName,
+    message: undefined,
+    date: new Date(1, 1, 2020),
+    notParticipants: [],
+    participants: [],
+  },
+  {
+    channelName: mockChannelName,
+    message: undefined,
+    date: new Date(new Date().setHours(0, 0, 0, 0)),
+    notParticipants: [],
+    participants: [],
+  },
+];
+jest.spyOn(repo, 'set').mockImplementation(() => Promise.resolve());
+jest.spyOn(repo, 'get').mockImplementation(() => Promise.resolve<IRollcall[]>([]));
 
 describe('Rollcalls', () => {
-  const mockChannelName = 'mock-channel-name';
-
   describe('no rollcalls are created', () => {
     it('should return undefined when getting today\'s rollcall', async () => {
-      const manager = getService(Services.Rollcalls);
-
-      const todayRollcall = manager.getToday(mockChannelName);
+      const manager = new RollcallService(repo);
+      const todayRollcall = await manager.getToday(mockChannelName);
 
       expect(todayRollcall)
         .toBeUndefined();
     });
 
     it('should create a new rollcall successfully', async () => {
-      const manager = new RollcallsService();
-
-      manager.startToday(mockChannelName);
-      const todayRollcall = manager.getToday(mockChannelName);
+      const manager = new RollcallService(repo);
+      await manager.startToday(mockChannelName);
+      const todayRollcall = await manager.getToday(mockChannelName);
 
       expect(todayRollcall)
         .not
@@ -32,61 +45,129 @@ describe('Rollcalls', () => {
   });
 
   describe('A rollcall exists', () => {
-    const manager = new RollcallsService();
-    manager.startToday(mockChannelName);
-    const todayRollcall = manager.getToday(mockChannelName);
+    it('should throw an exception if a new rollcall is created', async () => {
+      const manager = new RollcallService(repo);
+      await manager.startToday(mockChannelName);
 
-    it('should throw an exception if a new rollcall is created', () => {
-      expect(() => manager.startToday(mockChannelName)).toThrowError('ROLLCALL_ALREADY_EXISTS');
+      await expect(async () => manager.startToday(mockChannelName)).rejects.toThrowError('ROLLCALL_ALREADY_EXISTS');
     });
 
-    it('should not throw an exception adding a new participant if it doesn\'t exist already', () => {
-      expect(() => todayRollcall?.addParticipant('xxx'))
+    it('should not throw an exception adding a new participant if it doesn\'t exist already', async () => {
+      const manager = new RollcallService(repo);
+      await manager.startToday(mockChannelName);
+      const todayRollcall = await manager.getToday(mockChannelName);
+
+      expect(() => manager.addParticipant(todayRollcall!, 'xxx'))
         .not
         .toThrowError();
     });
 
-    it('should throw an exception adding an already existing participant', () => {
-      expect(() => todayRollcall?.addParticipant('xxx'))
+    it('should throw an exception adding an already existing participant', async () => {
+      const manager = new RollcallService(repo);
+      await manager.startToday(mockChannelName);
+      const todayRollcall = await manager.getToday(mockChannelName);
+      await manager.addParticipant(todayRollcall!, 'xxx');
+
+      await expect(() => manager.addParticipant(todayRollcall!, 'xxx'))
+        .rejects
         .toThrowError();
     });
 
-    it('should remove a registered participant if it exists', () => {
-      expect(() => todayRollcall?.removeParticipant('xxx'))
+    it('should remove a registered participant if it exists', async () => {
+      const manager = new RollcallService(repo);
+      await manager.startToday(mockChannelName);
+      const todayRollcall = await manager.getToday(mockChannelName);
+
+      await expect(() => manager.removeParticipant(todayRollcall!, 'xxx'))
         .not
         .toThrowError();
-      expect(todayRollcall?.getParticipants().length).toBe(0);
-      expect(todayRollcall?.getNotParticipants()).toStrictEqual(['xxx']);
+      expect(manager.getParticipants(todayRollcall!).length).toBe(0);
+      expect(manager.getNotParticipants(todayRollcall!)).toStrictEqual(['xxx']);
     });
 
-    it('should throw an exception if participant is already not registered', () => {
-      expect(() => todayRollcall?.removeParticipant('xxx'))
+    it('should throw an exception if participant is already not registered', async () => {
+      const manager = new RollcallService(repo);
+      await manager.startToday(mockChannelName);
+      const todayRollcall = await manager.getToday(mockChannelName);
+      await manager.removeParticipant(todayRollcall!, 'xxx');
+
+      await expect(manager.removeParticipant(todayRollcall!, 'xxx'))
+        .rejects
         .toThrowError();
     });
   });
 
-  describe('old rollcalls exist', () => {
-    it('should remove old rollcalls when creating a new one', () => {
-      const manager = new RollcallsService();
+  describe('Old rollcalls exist', () => {
+    it('should remove old rollcalls when creating a new one', async () => {
+      const manager = new RollcallService(repo);
 
       const yesterday = new Date(2000, 1, 1, 0, 0, 0);
       const today = new Date(2000, 1, 2, 0, 0, 0);
 
+      // Saving the Date implementation to reset it at the end of the test
+      const temp = global.Date;
       jest
         .spyOn(global, 'Date')
-        .mockImplementation(() => yesterday as unknown as string);
-      manager.startToday(mockChannelName);
+        .mockImplementationOnce(() => yesterday as unknown as string);
+      await manager.startToday(mockChannelName);
 
-      expect(manager.getAll().length)
+      expect((await manager.get()).length)
         .toBe(1);
 
       jest
         .spyOn(global, 'Date')
-        .mockImplementation(() => today as unknown as string);
-      manager.startToday(mockChannelName);
+        .mockImplementationOnce(() => today as unknown as string);
+      await manager.startToday(mockChannelName);
 
-      expect(manager.getAll().length)
+      expect((await manager.get()).length)
         .toBe(1);
+
+      // Restoring the original implementation of Date. For some reason this is not done by jest.
+      global.Date = temp;
+    });
+  });
+
+  describe('loads existing rollcalls', () => {
+    it('should load an existing rollcall', async () => {
+      jest.spyOn(repo, 'get').mockImplementationOnce(() => Promise.resolve<IRollcall[]>(mockedRollcalls));
+      const manager = new RollcallService(repo);
+      await expect(manager.get())
+        .resolves
+        .toBe(mockedRollcalls);
+    });
+
+    it('getToday should return today\'s rollcall that was previously loaded from repo', async () => {
+      jest.spyOn(repo, 'get').mockImplementationOnce(() => Promise.resolve<IRollcall[]>(mockedRollcalls));
+      const manager = new RollcallService(repo);
+      const today = await manager.getToday(mockChannelName);
+      expect(today)
+        .not
+        .toBeUndefined();
+    });
+
+    it('should add a participant to a rollcall loaded from repo', async () => {
+      jest.spyOn(repo, 'get').mockImplementationOnce(() => Promise.resolve<IRollcall[]>(mockedRollcalls));
+      const manager = new RollcallService(repo);
+      const today = await manager.getToday(mockChannelName);
+      await expect(manager.addParticipant(today!, 'xxx'))
+        .resolves;
+      const updatedToday = await manager.getToday(mockChannelName);
+      expect(updatedToday!.participants).toStrictEqual(['xxx']);
+    });
+
+    it('should update the saved rollcalls when creating new rollcall', async () => {
+      const setSpy = jest.spyOn(repo, 'set').mockImplementationOnce(() => Promise.resolve());
+      const manager = new RollcallService(repo);
+      await manager.startToday(mockChannelName);
+      expect(setSpy).toBeCalled();
+    });
+
+    it('should update the saved rollcalls when adding participants', async () => {
+      const setSpy = jest.spyOn(repo, 'set').mockImplementationOnce(() => Promise.resolve());
+      const manager = new RollcallService(repo);
+      const today = await manager.startToday(mockChannelName);
+      await manager.addParticipant(today, 'xxx');
+      expect(setSpy).toBeCalledTimes(2);
     });
   });
 });

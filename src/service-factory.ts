@@ -6,10 +6,8 @@ import { ISettingsService } from './services/interfaces/settings-service';
 import { MapsInfoService } from './services/maps-info';
 import { CboxParser } from './services/parsers/cbox-parser';
 import { SettingsService } from './services/settings';
-import { IRollcallsService } from './services/interfaces/rollcalls-service';
-import { RollcallsService } from './services/rollcall-service/rollcalls-service';
-import { IDbService } from './services/interfaces/db-service';
-import { DbService } from './services/db/db-service';
+import { IRollcallRepo } from './services/interfaces/db-service';
+import { RollcallRepo } from './services/db/rollcall-repo';
 import { IRollcallService } from './services/interfaces/rollcall-service';
 import { RollcallService } from './services/rollcall-service/rollcall-service';
 
@@ -18,9 +16,8 @@ export enum Services {
   MapsInfo = 'mapsinfo',
   HttpHelper = 'HttpHelper',
   CombatBoxParser = 'CombatBoxParser',
-  Rollcalls = 'Rollcalls',
   Rollcall = 'Rollcall',
-  Db = 'Db',
+  RollcalRepo = 'RollcalRepo',
 }
 
 export type ServiceTypeMapping<T> =
@@ -28,10 +25,9 @@ export type ServiceTypeMapping<T> =
     T extends Services.Settings ? ISettingsService :
       T extends Services.HttpHelper ? IHttpHelperService :
         T extends Services.CombatBoxParser ? IGameServerInfoParser :
-          T extends Services.Rollcalls ? IRollcallsService :
-            T extends Services.Rollcall ? IRollcallService :
-              T extends Services.Db ? IDbService :
-                never;
+          T extends Services.Rollcall ? IRollcallService :
+            T extends Services.RollcalRepo ? IRollcallRepo :
+              never;
 
 export class ServiceFactory {
   private static instance: ServiceFactory;
@@ -67,14 +63,11 @@ export class ServiceFactory {
         case Services.CombatBoxParser:
           singleton = new CboxParser(this.getSingleton(Services.HttpHelper));
           break;
-        case Services.Rollcalls:
-          singleton = new RollcallsService();
-          break;
         case Services.Rollcall:
-          singleton = new RollcallService();
+          singleton = new RollcallService(this.getSingleton(Services.RollcalRepo));
           break;
-        case Services.Db:
-          singleton = new DbService();
+        case Services.RollcalRepo:
+          singleton = new RollcallRepo();
           break;
         default:
           throw new Error(`No concrete class provided for service${serviceIdentifier}`);

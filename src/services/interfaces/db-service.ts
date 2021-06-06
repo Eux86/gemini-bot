@@ -1,8 +1,11 @@
-import { Rollcall } from '../../models/rollcall';
+import { IRollcall } from '../../models/rollcall';
 
-export interface IDbService {
-  saveRollcall: (rollcall: Rollcall) => Promise<void>;
-  deleteRollcall: (rollcall: Rollcall) => Promise<void>;
-  getRollcallByDateAndChannel: (date: Date, channelName: string) => Promise<Rollcall | undefined>;
+export interface IRollcallRepo {
+  set: (rollcalls: IRollcall[]) => Promise<void>;
+  get: () => Promise<IRollcall[]>;
+
+  saveRollcall: (rollcall: IRollcall) => Promise<void>;
+  deleteRollcall: (rollcall: IRollcall) => Promise<void>;
+  getRollcallByDateAndChannel: (date: Date, channelName: string) => Promise<IRollcall | undefined>;
 }
 

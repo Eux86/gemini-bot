@@ -64,7 +64,7 @@ class Bot {
 
     this.client.login(process.env.BOT_TOKEN);
 
-    getService(Services.Db);
+    getService(Services.RollcalRepo);
   }
 
   broadcastOnAllChannels = (message: string) => {

@@ -6,12 +6,15 @@ const notHere: ICommand = {
   description: 'Remove own participation to current rollcall',
   isSecret: false,
   command: async (msg) => {
-    const rollcallService = getService(Services.Rollcalls);
+    const rollcallService = getService(Services.Rollcall);
     try {
-      const todayRollcall = rollcallService.getToday(msg.channel.id);
-      todayRollcall?.removeParticipant(msg.author.username);
-      await todayRollcall?.getMessage()
-        ?.edit(todayRollcall?.generateMessageContent());
+      const todayRollcall = await rollcallService.getToday(msg.channel.id);
+      if (!todayRollcall) {
+        msg.channel.send('🤦‍ ️Start a rollcall first!');
+        return;
+      }
+      await rollcallService.removeParticipant(todayRollcall, msg.author.username);
+      await todayRollcall.message?.edit(rollcallService.generateMessageContent(todayRollcall));
       await msg.delete({ timeout: 1 });
     } catch (e) {
       switch (e.message || e) {
