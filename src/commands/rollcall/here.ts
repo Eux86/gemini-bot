@@ -14,7 +14,11 @@ const here: ICommand = {
         return;
       }
       await rollcallService.addParticipant(todayRollcall, msg.author.username);
-      await todayRollcall?.message?.edit((rollcallService.generateMessageContent(todayRollcall)));
+      // TODO: In case the message got lost, it should create a new one
+      if (todayRollcall.messageId) {
+        const rollcallMessage = await msg.channel.messages.fetch(todayRollcall.messageId);
+        await rollcallMessage.edit((rollcallService.generateMessageContent(todayRollcall)));
+      }
       await msg.delete({ timeout: 1 });
     } catch (e) {
       switch (e.message || e) {

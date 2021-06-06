@@ -47,7 +47,7 @@ ${rollcall.notParticipants.length} NOT present${rollcall.participants.length > 1
 
     const newRollcall = await this.create(channelName);
     this.rollcalls.push(newRollcall);
-    this.repo.set(this.rollcalls);
+    await this.repo.set(this.rollcalls);
     return newRollcall;
   }
 
@@ -91,7 +91,7 @@ ${rollcall.notParticipants.length} NOT present${rollcall.participants.length > 1
       throw new Error('ALREADY_NOT_REGISTERED');
     }
     rollcall.notParticipants.push(name);
-    await this.saveRollcall(rollcall);
+    await this.repo.set(this.rollcalls);
   };
 
   public getParticipants = (rollcall: IRollcall) => rollcall.participants
@@ -103,12 +103,8 @@ ${rollcall.notParticipants.length} NOT present${rollcall.participants.length > 1
     return this.rollcalls;
   }
 
-  private saveRollcall = async (rollcall: IRollcall) => this.repo.saveRollcall(rollcall)
-
-  bindToMessage(rollcall: IRollcall, message: Message): Promise<void> {
-    return this.saveRollcall({
-      ...rollcall,
-      message,
-    });
+  public bindToMessage = async (rollcall: IRollcall, message: Message): Promise<void> => {
+    rollcall.messageId = message.id;
+    await this.repo.set(this.rollcalls);
   }
 }

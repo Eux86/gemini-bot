@@ -14,7 +14,10 @@ const notHere: ICommand = {
         return;
       }
       await rollcallService.removeParticipant(todayRollcall, msg.author.username);
-      await todayRollcall.message?.edit(rollcallService.generateMessageContent(todayRollcall));
+      if (todayRollcall.messageId) {
+        const rollcallMessage = await msg.channel.messages.fetch(todayRollcall.messageId);
+        await rollcallMessage.edit((rollcallService.generateMessageContent(todayRollcall)));
+      }
       await msg.delete({ timeout: 1 });
     } catch (e) {
       switch (e.message || e) {

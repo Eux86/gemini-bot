@@ -7,14 +7,14 @@ const repo = new RollcallRepo();
 const mockedRollcalls: IRollcall[] = [
   {
     channelName: mockChannelName,
-    message: undefined,
+    messageId: undefined,
     date: new Date(1, 1, 2020),
     notParticipants: [],
     participants: [],
   },
   {
     channelName: mockChannelName,
-    message: undefined,
+    messageId: undefined,
     date: new Date(new Date().setHours(0, 0, 0, 0)),
     notParticipants: [],
     participants: [],
