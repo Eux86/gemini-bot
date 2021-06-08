@@ -1,8 +1,16 @@
-FROM node:alpine
+FROM node:lts-alpine
 
 WORKDIR /usr/src/app
 
-COPY ./dist/ .
-COPY ./node_modules/ node_modules/
+COPY ./package-lock.json .
+COPY ./tsconfig.json .
+COPY ./src .
 
-CMD [ "node", "main.js" ]
+RUN npm i
+RUN npm run build
+RUN npm run start
+
+WORKDIR /usr/src/dist
+
+#CMD [ "node", "main.js" ]
+CMD ["/bin/sh"]

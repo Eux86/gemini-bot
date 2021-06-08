@@ -1,1 +1,7 @@
-npm-debug.log
+.dockerignore
+.gitignore
+.idea
+.vscode
+__tests__
+mocks
+src

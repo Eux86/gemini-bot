@@ -1,8 +1,10 @@
-FROM arm32v7/node:alpine
+#FROM arm32v7/node:alpine
+FROM arm32v7/node:lts-alpine
 
 WORKDIR /usr/src/app
 
-COPY ./dist/ .
-ADD ./node_modules.tar.gz .
+COPY ./dist ./dist
+COPY ./node_modules ./node_modules
 
-CMD [ "node", "main.js" ]
+CMD [ "node", "./dist/main.js" ]
+
