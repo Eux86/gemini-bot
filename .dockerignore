@@ -1,7 +1,4 @@
-.dockerignore
-.gitignore
-.idea
-.vscode
-__tests__
-mocks
-src
+**
+!dist
+!node_modules
+*.*

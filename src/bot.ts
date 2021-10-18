@@ -1,4 +1,6 @@
-import { Channel, Client, Collection, TextChannel, } from 'discord.js';
+import {
+  Channel, Client, Collection, TextChannel,
+} from 'discord.js';
 import commands, { ICommand } from './commands';
 import { getService, Services } from './service-factory';
 
@@ -37,7 +39,7 @@ class Bot {
       if (!clientCommands.find((cmd) => cmd.name.includes(command.substring(1)))) return;
       console.log('found');
 
-      // Cycles thorugh all the available commands
+      // Cycles thorough all the available commands
       try {
         const concreteCommand = clientCommands.get(command);
         if (concreteCommand) {

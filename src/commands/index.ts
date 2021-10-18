@@ -14,7 +14,7 @@ interface ICommand {
   name: string[];
   isSecret: boolean;
   description: string;
-  command: (msg: Message, args: any, settingsService: ISettingsService) => void;
+  command: (msg: Message, args: string[], settingsService: ISettingsService) => void;
 }
 
 export { ICommand };
