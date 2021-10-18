@@ -2,9 +2,9 @@ FROM node:lts-alpine
 
 WORKDIR /usr/src/app
 
-COPY ./package-lock.json .
+COPY ./src ./src
 COPY ./tsconfig.json .
-COPY ./src .
+COPY ./package.json .
 
 RUN npm i
 RUN npm run build
@@ -12,5 +12,4 @@ RUN npm run start
 
 WORKDIR /usr/src/dist
 
-#CMD [ "node", "main.js" ]
-CMD ["/bin/sh"]
+CMD [ "node", "./dist/main.js" ]

@@ -1,0 +1,1 @@
+export { rip } from './rip';

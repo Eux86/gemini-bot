@@ -113,7 +113,7 @@ module.exports = {
 
   // A list of paths to directories that Jest should use to search for files in
   roots: [
-    '<rootDir>/__tests__',
+    // '<rootDir>/__tests__',
     '<rootDir>/src',
   ],
 
@@ -142,6 +142,9 @@ module.exports = {
   // testMatch: [
   //   "**/__tests__/**/*.[jt]s?(x)",
   //   "**/?(*.)+(spec|test).[tj]s?(x)"
+  // ],
+  // testMatch: [
+  //   '<rootDir>/src/**/*.spec.js',
   // ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped

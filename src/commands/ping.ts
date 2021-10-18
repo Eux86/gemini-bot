@@ -1,12 +1,14 @@
-import { ICommand } from '.';
+import { ICommandHandler } from '../types/command-handler';
 
-const ping: ICommand = {
-  name: ['ping'],
+const ping: ICommandHandler = {
+  commandMatchers: ['ping'],
   description: 'test command to verify if the bot is still alive',
   isSecret: true,
-  command: (msg: any) => {
-    msg.reply('pong');
-    msg.channel.send('pong');
+  handler: ({
+    discordMessage,
+  }) => {
+    discordMessage.reply('pong');
+    discordMessage.channel.send('pong');
   },
 };
 
