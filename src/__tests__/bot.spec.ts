@@ -7,21 +7,19 @@ import { MockClient } from '../__mocks__/discord-client';
 
 // Mocked command handlers
 // This simulates the command bundles that can be added to the bot
-jest.mock('../enabled-commands', (): ICommandHandler[] => ([
-  {
-    commandMatchers: ['mock-message'],
-    handler: (command: ITextCommand) => command.discordMessage.reply('mock-handler-reply'),
-    isSecret: false,
-    description: 'fake command handler',
-  },
-]));
+const commandHandlersMock: ICommandHandler[] = [];
+jest.mock('../enabled-commands', (): ICommandHandler[] => commandHandlersMock);
 
 // Mocked user message from discord
 // This simulates a message sent from a discord user
 const spyReply = jest.fn();
+const spyChannelSend = jest.fn();
 const createUserChatMessage: (text: string) => Message = (text) => ({
   content: text,
   reply: spyReply,
+  channel: {
+    send: spyChannelSend,
+  },
 } as unknown as Message);
 
 jest.mock('discord.js');
@@ -29,9 +27,20 @@ jest.spyOn(DiscordModule, 'Client').mockImplementation(() => new MockClient() as
 
 describe('Bot', () => {
   describe('start', () => {
+    beforeEach(() => {
+      commandHandlersMock.splice(0, commandHandlersMock.length);
+    });
+
     it('should respond when queried with an existing command', async () => {
       const bot = new Bot();
       await bot.start();
+
+      commandHandlersMock.push({
+        commandMatchers: ['mock-message'],
+        handler: (command: ITextCommand) => command.discordMessage.reply('mock-handler-reply'),
+        isSecret: false,
+        description: 'fake command handler',
+      });
 
       MockClient.fireUserChatMessageReceived(createUserChatMessage('.mock-message'));
       expect(spyReply).toBeCalledWith('mock-handler-reply');
@@ -41,8 +50,43 @@ describe('Bot', () => {
       const bot = new Bot();
       await bot.start();
 
+      commandHandlersMock.push({
+        commandMatchers: ['mock-message'],
+        handler: (command: ITextCommand) => command.discordMessage.reply('mock-handler-reply'),
+        isSecret: false,
+        description: 'fake command handler',
+      });
+
       MockClient.fireUserChatMessageReceived(createUserChatMessage('not a command'));
       expect(spyReply).not.toBeCalled();
+    });
+
+    it('should respond showing the description of the command handlers when queried help command', async () => {
+      const bot = new Bot();
+      await bot.start();
+      commandHandlersMock.push({
+        commandMatchers: ['mock'],
+        description: 'mock-description',
+        handler: jest.fn(),
+        isSecret: false,
+      });
+
+      MockClient.fireUserChatMessageReceived(createUserChatMessage('.help'));
+      expect(spyChannelSend).toBeCalledWith('mock: mock-description\n');
+    });
+
+    it('should not show any help when the help command is called but the handler is secret', async () => {
+      const bot = new Bot();
+      await bot.start();
+      commandHandlersMock.push({
+        commandMatchers: ['mock'],
+        description: 'mock-description',
+        handler: jest.fn(),
+        isSecret: true,
+      });
+
+      MockClient.fireUserChatMessageReceived(createUserChatMessage('.help'));
+      expect(spyChannelSend).toBeCalledWith('');
     });
   });
 });

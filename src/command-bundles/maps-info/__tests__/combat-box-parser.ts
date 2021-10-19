@@ -1,4 +1,4 @@
-import { combatBoxHomeMock } from '../../../../__mocks__/combat-box-home';
+import { combatBoxHomeMock } from '../__mocks__/combat-box-home';
 import { IMapsInfo } from '../types/maps-info';
 import { IHttpHelperService } from '../types/http-helper-service';
 import { CboxParser } from '../parsers/cbox-parser';

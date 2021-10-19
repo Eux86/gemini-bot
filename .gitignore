@@ -1,6 +1,5 @@
 node_modules.tar.gz
 dist
-settings.json
 
 # Created by https://www.gitignore.io/api/node
 # Edit at https://www.gitignore.io/?templates=node

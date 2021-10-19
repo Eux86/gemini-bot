@@ -65,7 +65,7 @@ export default class Bot {
   }
 
   private handleHelpCommand(command: ITextCommand) {
-    if (command.name === `${this.commandPrefix}help`) {
+    if (command.name === 'help') {
       const helpText = this.getHelpText(commands);
       command.discordMessage.channel.send(helpText);
     }
