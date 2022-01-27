@@ -1,7 +1,7 @@
 import { RollcallService } from '../services/rollcall-service';
-import { ICommandHandler } from '../../../types/command-handler';
+import { ICommandDescription } from '../../../types/command-handler';
 
-export const rollcallPull: ICommandHandler = {
+export const rollcallPull: ICommandDescription = {
   commandMatchers: ['rollcall-pull'],
   description: 'Pulls the rollcall message down.',
   isSecret: false,

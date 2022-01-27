@@ -1,6 +1,6 @@
-import { ICommandHandler } from '../../../types/command-handler';
+import { ICommandDescription } from '../../../types/command-handler';
 
-export const borguddio: ICommandHandler = {
+export const borguddio: ICommandDescription = {
   commandMatchers: ['borguddio', 'porcoddio', 'porcodio', 'porco*io', 'porco', 'dioporco', 'dio'],
   description: 'Returns info about the available servers maps',
   isSecret: true,

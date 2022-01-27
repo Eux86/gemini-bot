@@ -1,7 +1,7 @@
-import { ICommandHandler } from '../../../types/command-handler';
+import { ICommandDescription } from '../../../types/command-handler';
 import { tombstoneMaker } from '../tombstone-maker';
 
-export const rip: ICommandHandler = {
+export const rip: ICommandDescription = {
   commandMatchers: ['rip'],
   description: 'put your chosen words on a respectful tombstone',
   isSecret: true,

@@ -1,6 +1,6 @@
-import { ICommandHandler } from '../../../types/command-handler';
+import { ICommandDescription } from '../../../types/command-handler';
 
-export const hereTest: ICommandHandler = {
+export const hereTest: ICommandDescription = {
   commandMatchers: ['here-test'],
   description: 'outdated',
   isSecret: true,
