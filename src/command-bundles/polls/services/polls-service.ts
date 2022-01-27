@@ -35,6 +35,7 @@ export class PollsService implements IPollsServce {
       date: new Date(),
       description,
       options,
+      votes: [],
       messageId: 'mock-message-id',
     };
     this.polls.push(newPoll);
@@ -67,4 +68,13 @@ export class PollsService implements IPollsServce {
     }
     return generatePollMessage(foundPoll.description, foundPoll.options);
   }
+
+  public vote = async (channelName: string, userName: string, optionIndex: number): Promise<void> => {
+    const foundPoll = this.polls.find((poll) => poll.channelName === channelName);
+    if (!foundPoll) {
+      throw new Error('POLL_DOES_NOT_EXIST_IN_CHANNEL');
+    }
+    foundPoll.votes.push({ userName, optionIndex });
+    return this.updateRepo();
+  };
 }

@@ -8,4 +8,6 @@ export interface IPoll {
   description: string;
 
   options: string[];
+
+  votes: { userName: string, optionIndex: number}[]
 }

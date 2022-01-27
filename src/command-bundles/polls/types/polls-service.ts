@@ -9,4 +9,6 @@ export interface IPollsServce {
   bindToMessage: (poll: IPoll, message: Message) => Promise<void>;
 
   generatePollMessage: (channelName: string) => string;
+
+  vote: (channelName: string, userName: string, optionIndex: number) => Promise<void>;
 }
