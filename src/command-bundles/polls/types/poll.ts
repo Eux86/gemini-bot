@@ -1,3 +1,5 @@
+export interface IVote { userName: string, optionIndex: number}
+
 export interface IPoll {
   messageId: string | undefined;
 
@@ -9,5 +11,5 @@ export interface IPoll {
 
   options: string[];
 
-  votes: { userName: string, optionIndex: number}[]
+  votes: IVote[]
 }

@@ -2,7 +2,7 @@
 import {
   Channel, Client, Message, TextChannel,
 } from 'discord.js';
-import commands from './enabled-commands';
+import { commands } from './enabled-commands';
 import { ITextCommand } from './types/text-command';
 import { ISettingsService } from './types/settings-service';
 import { ICommandHandler } from './types/command-handler';

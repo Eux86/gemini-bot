@@ -10,5 +10,7 @@ export interface IPollsServce {
 
   generatePollMessage: (channelName: string) => string;
 
+  closeAndGetResultsMessage: (channelName: string) => Promise<string>;
+
   vote: (channelName: string, userName: string, optionIndex: number) => Promise<void>;
 }

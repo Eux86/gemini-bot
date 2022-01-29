@@ -7,8 +7,8 @@ import { MockClient } from '../__mocks__/discord-client';
 
 // Mocked command handlers
 // This simulates the command bundles that can be added to the bot
-const commandHandlersMock: ICommandHandler[] = [];
-jest.mock('../enabled-commands', (): ICommandHandler[] => commandHandlersMock);
+const commandHandlersMock: {commands: ICommandHandler[] } = { commands: [] } as any;
+jest.mock('../enabled-commands', () => commandHandlersMock);
 
 // Mocked user message from discord
 // This simulates a message sent from a discord user
@@ -28,14 +28,14 @@ jest.spyOn(DiscordModule, 'Client').mockImplementation(() => new MockClient() as
 describe('Bot', () => {
   describe('start', () => {
     beforeEach(() => {
-      commandHandlersMock.splice(0, commandHandlersMock.length);
+      commandHandlersMock.commands.splice(0, commandHandlersMock.commands.length);
     });
 
     it('should respond when queried with an existing command', async () => {
       const bot = new Bot();
       await bot.start();
 
-      commandHandlersMock.push({
+      commandHandlersMock.commands.push({
         commandMatchers: ['mock-message'],
         handler: (command: ITextCommand) => command.discordMessage.reply('mock-handler-reply'),
         isSecret: false,
@@ -50,7 +50,7 @@ describe('Bot', () => {
       const bot = new Bot();
       await bot.start();
 
-      commandHandlersMock.push({
+      commandHandlersMock.commands.push({
         commandMatchers: ['mock-message'],
         handler: (command: ITextCommand) => command.discordMessage.reply('mock-handler-reply'),
         isSecret: false,
@@ -64,7 +64,7 @@ describe('Bot', () => {
     it('should respond showing the description of the command handlers when queried help command', async () => {
       const bot = new Bot();
       await bot.start();
-      commandHandlersMock.push({
+      commandHandlersMock.commands.push({
         commandMatchers: ['mock'],
         description: 'mock-description',
         handler: jest.fn(),
@@ -78,7 +78,7 @@ describe('Bot', () => {
     it('should not show any help when the help command is called but the handler is secret', async () => {
       const bot = new Bot();
       await bot.start();
-      commandHandlersMock.push({
+      commandHandlersMock.commands.push({
         commandMatchers: ['mock'],
         description: 'mock-description',
         handler: jest.fn(),
