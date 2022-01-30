@@ -68,7 +68,7 @@ describe('Bot', () => {
       await bot.start();
 
       MockClient.fireUserChatMessageReceived(createUserChatMessage('.help'));
-      expect(spyChannelSend).toBeCalledWith('mock: mock-description\n');
+      expect(spyChannelSend).toBeCalledWith('\n**mock**: *mock-description*\n');
     });
 
     it('should not show any help when the help command is called but the handler is secret', async () => {
