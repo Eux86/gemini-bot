@@ -1,15 +1,9 @@
-FROM node:lts-alpine
+FROM node
 
 WORKDIR /usr/src/app
 
-COPY ./src ./src
-COPY ./tsconfig.json .
-COPY ./package.json .
+COPY output.tar ./output.tar
 
-RUN npm i
-RUN npm run build
-RUN npm run start
-
-WORKDIR /usr/src/dist
+RUN tar -xf ./output.tar
 
 CMD [ "node", "./dist/main.js" ]

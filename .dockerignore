@@ -6,3 +6,5 @@
 .dockerignore
 .gitignore
 src
+node_modules
+dist
