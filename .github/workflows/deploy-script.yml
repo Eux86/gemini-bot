@@ -45,7 +45,7 @@ jobs:
       with:
         name: base-folder
     - name: 'Untar files'
-      run: tar -xzf ./base-folder.tar
+      run: tar -xf ./base-folder.tar
     - name: configure ssh connection
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
