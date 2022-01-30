@@ -1,4 +1,4 @@
-import { ICommandHandler } from '../../../types/command-handler';
+import { ICommandDescription } from '../../../types/command-handler';
 import { MapsInfoService } from '../services/maps-info';
 import { CboxParser } from '../parsers/cbox-parser';
 import { HttpHelper } from '../services/http-helper';
@@ -7,7 +7,7 @@ const httpHelperService = new HttpHelper();
 const combatBoxParser = new CboxParser(httpHelperService);
 const mapsInfoService = new MapsInfoService(combatBoxParser);
 
-export const mapsInfo: ICommandHandler = {
+export const mapsInfo: ICommandDescription = {
   commandMatchers: ['maps'],
   description: 'Returns info about the available servers maps',
   isSecret: false,

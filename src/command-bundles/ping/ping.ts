@@ -1,6 +1,6 @@
-import { ICommandHandler } from '../../types/command-handler';
+import { ICommandDescription } from '../../types/command-handler';
 
-export const ping: ICommandHandler = {
+export const ping: ICommandDescription = {
   commandMatchers: ['ping'],
   description: 'test command to verify if the bot is still alive',
   isSecret: true,

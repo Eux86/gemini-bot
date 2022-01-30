@@ -4,10 +4,10 @@ import ripBundle from './command-bundles/rip';
 import mapsInfoBundle from './command-bundles/maps-info';
 import * as pollBundle from './command-bundles/polls';
 import * as pingBundle from './command-bundles/ping';
-import { ICommandHandler } from './types/command-handler';
+import { ICommandDescription } from './types/command-handler';
 
-export const commands: ICommandHandler[] = [
-  ...Object.values(pollBundle),
+export const commands: ICommandDescription[] = [
+  ...Object.values(pollBundle.commands),
   ...Object.values(pingBundle),
   ...rollcallBundle,
   ...borguddioBundle,

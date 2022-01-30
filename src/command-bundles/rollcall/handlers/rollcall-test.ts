@@ -1,6 +1,6 @@
-import { ICommandHandler } from '../../../types/command-handler';
+import { ICommandDescription } from '../../../types/command-handler';
 
-export const rollcallTest: ICommandHandler = {
+export const rollcallTest: ICommandDescription = {
   commandMatchers: ['rollcall-test'],
   description: 'outdated',
   isSecret: true,

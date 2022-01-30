@@ -1,32 +1,33 @@
-import { IVote } from '../types/poll';
+import { IPoll, IVote, PollState } from '../types/poll';
 
-export const generatePollMessage = (description: string, options: string[]) => `
-POLL!
+const getNumberOfVotesForOption = (votes: IVote[], optionIndex: number): number => votes.filter((v) => v.optionIndex - 1 === optionIndex).length;
+
+const getVotersForOption = (votes: IVote[], optionIndex: number) => votes.filter((v) => v.optionIndex - 1 === optionIndex).map((x) => x.userName).sort().join(', ');
+
+const generateVoteInfo = (options: string[], votes: IVote[]) => {
+  let returnString = '';
+  options.forEach((option, index) => {
+    const numberOfVotes = getNumberOfVotesForOption(votes, index);
+    const listOfVoters = numberOfVotes > 0 ? ` (${getVotersForOption(votes, index)})` : '';
+
+    returnString += (`${index + 1}) ${option}\nVotes: ${numberOfVotes}${listOfVoters}${index < options.length - 1 ? '\n\n' : ''}`);
+  });
+  return returnString;
+};
+
+export const generatePollMessage = ({
+  description,
+  options,
+  votes,
+  state,
+}: IPoll) => {
+  const votersListString = generateVoteInfo(options, votes);
+  return (`
+### POLL ${state === PollState.Open ? 'OPEN' : 'CLOSED'} ###
 ${description}
 
-${options.map((op, index) => `${index + 1}: ${op}\n`).join()}
+${options.length < 1 ? '*still no options added to the poll*' : votersListString}
 
-Add options to the poll with: 
-poll add option description
-
-For example: 
-poll add I like StrawLegacy
-poll add I don't like StrawLegacy
-
-Vote your option with: 
-poll vote option-number
-
-For example: 
-poll vote 1
-poll vote 2
-`;
-
-export const generatePollResultsMessage = (description: string, options: string[], votes: IVote[]) => `
-=== POLL RESULTS ===
-${description}
-
-${options.map((option, index) => `
-${option}
-Votes: ${votes.filter((v) => v.optionIndex - 1 === index).map((x) => x.userName).sort().join(', ')}
-`).join('\n')}
-`;
+Use the \`help\` command to see how to add options to the poll and vote.
+`);
+};

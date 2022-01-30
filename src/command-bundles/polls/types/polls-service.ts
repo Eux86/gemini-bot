@@ -6,11 +6,13 @@ export interface IPollsServce {
 
   addOption: (channelName: string, description: string) => Promise<IPoll>;
 
-  bindToMessage: (poll: IPoll, message: Message) => Promise<void>;
+  bindToMessage: (poll: IPoll, message: Message) => Promise<IPoll>;
 
   generatePollMessage: (channelName: string) => string;
 
-  closeAndGetResultsMessage: (channelName: string) => Promise<string>;
+  close: (channelName: string) => Promise<IPoll>;
 
-  vote: (channelName: string, userName: string, optionIndex: number) => Promise<void>;
+  vote: (channelName: string, userName: string, optionIndex: number) => Promise<IPoll>;
+
+  getPollByChannel: (channelName: string) => IPoll;
 }

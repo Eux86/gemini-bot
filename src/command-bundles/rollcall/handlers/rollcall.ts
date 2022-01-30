@@ -1,7 +1,7 @@
 import { RollcallService } from '../services/rollcall-service';
-import { ICommandHandler } from '../../../types/command-handler';
+import { ICommandDescription } from '../../../types/command-handler';
 
-export const rollcall: ICommandHandler = {
+export const rollcall: ICommandDescription = {
   commandMatchers: ['rollcall'],
   description: 'Organize a rollcall for today',
   isSecret: false,

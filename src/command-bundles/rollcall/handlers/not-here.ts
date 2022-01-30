@@ -1,7 +1,7 @@
 import { RollcallService } from '../services/rollcall-service';
-import { ICommandHandler } from '../../../types/command-handler';
+import { ICommandDescription } from '../../../types/command-handler';
 
-export const notHere: ICommandHandler = {
+export const notHere: ICommandDescription = {
   commandMatchers: ['not-here'],
   description: 'Remove own participation to current rollcall',
   isSecret: false,

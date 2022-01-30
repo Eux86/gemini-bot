@@ -5,7 +5,7 @@ import {
 import { commands } from './enabled-commands';
 import { ITextCommand } from './types/text-command';
 import { ISettingsService } from './types/settings-service';
-import { ICommandHandler } from './types/command-handler';
+import { ICommandDescription } from './types/command-handler';
 import { SettingsService } from './global-services/settings';
 
 export default class Bot {
@@ -48,7 +48,7 @@ export default class Bot {
     });
   }
 
-  private handleCommand(commandHandlers: ICommandHandler[], textCommand: ITextCommand, settingsService: ISettingsService) {
+  private handleCommand(commandHandlers: ICommandDescription[], textCommand: ITextCommand, settingsService: ISettingsService) {
     console.log(`Received: ${textCommand.name} with ${textCommand.args}`)
     if (!commandHandlers.find((commandHandler) => commandHandler.commandMatchers.includes(textCommand.name))) return;
     try {
@@ -83,10 +83,10 @@ export default class Bot {
     };
   }
 
-  private loadCommandHandlers(): ICommandHandler[] {
-    const clientCommands: ICommandHandler[] = [];
+  private loadCommandHandlers(): ICommandDescription[] {
+    const clientCommands: ICommandDescription[] = [];
 
-    commands.forEach((commandHandler: ICommandHandler) =>
+    commands.forEach((commandHandler: ICommandDescription) =>
       commandHandler.commandMatchers.forEach((name: string) =>
         clientCommands.push(commandHandler)));
     return clientCommands;
@@ -102,11 +102,11 @@ export default class Bot {
 
   isTextChannel = (channel: Channel): channel is TextChannel => channel.type === 'text';
 
-  getHelpText = (cmds: Array<ICommandHandler>): string => {
+  getHelpText = (cmds: Array<ICommandDescription>): string => {
     let helpText = '';
     // eslint-disable-next-line no-restricted-syntax
     for (const command of cmds.filter((cmd) => !cmd.isSecret)) {
-      helpText += `${command.commandMatchers}: ${command.description}\n`;
+      helpText += `\n**${command.commandMatchers}**: *${command.description}*\n`;
     }
     return helpText;
   }

@@ -1,5 +1,10 @@
 export interface IVote { userName: string, optionIndex: number}
 
+export enum PollState {
+  Open = 'Open',
+  Closed = 'Closed',
+}
+
 export interface IPoll {
   messageId: string | undefined;
 
@@ -11,5 +16,7 @@ export interface IPoll {
 
   options: string[];
 
-  votes: IVote[]
+  votes: IVote[];
+
+  state: PollState;
 }

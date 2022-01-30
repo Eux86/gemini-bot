@@ -1,18 +1,19 @@
-import { ICommandHandler } from '../../../types/command-handler';
+import { CommandHandler } from '../../../types/command-handler';
 import { PollsService } from '../services/polls-service';
+import { handleError } from '../services/errors-handler';
+import { pullDiscordMessage } from './common/pull-message';
 
-export const pollAdd: ICommandHandler = {
-  commandMatchers: ['poll-add'],
-  description: 'Adds an option to the poll in the channel',
-  isSecret: false,
-  handler: async ({
-    discordMessage,
-    args,
-  }) => {
-    const service = await PollsService.getInstance();
-    const optionDescription = args.join(' ');
-    const channelName = discordMessage.channel.id;
-    await service.addOption(channelName, optionDescription);
-    await discordMessage.channel.send(service.generatePollMessage(channelName));
-  },
+export const pollAddHandler: CommandHandler = async ({
+  discordMessage,
+  args,
+}) => {
+  const service = await PollsService.getInstance();
+  const optionDescription = args.join(' ');
+  const channelName = discordMessage.channel.id;
+  try {
+    const poll = await service.addOption(channelName, optionDescription);
+    await pullDiscordMessage(poll, service, discordMessage.channel);
+  } catch (error) {
+    await handleError(error, (message) => discordMessage.channel.send(message));
+  }
 };

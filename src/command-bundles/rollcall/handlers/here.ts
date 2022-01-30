@@ -1,7 +1,7 @@
 import { RollcallService } from '../services/rollcall-service';
-import { ICommandHandler } from '../../../types/command-handler';
+import { ICommandDescription } from '../../../types/command-handler';
 
-export const here: ICommandHandler = {
+export const here: ICommandDescription = {
   commandMatchers: ['here'],
   description: 'Add own participation to current rollcall',
   isSecret: false,
