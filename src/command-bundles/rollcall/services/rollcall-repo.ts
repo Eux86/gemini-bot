@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Firestore, Settings } from '@google-cloud/firestore';
 import { IRollcall } from '../types/rollcall';
 import { IRollcallRepo } from '../types/rollcall-repo';

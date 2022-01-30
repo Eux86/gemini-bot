@@ -5,16 +5,21 @@ import { IPoll, PollState } from '../types/poll';
 import { PollsRepo } from './polls-repo';
 import { generatePollMessage } from './response-templates';
 import { PollErrors } from '../types/errors';
+import { IPollsRepo } from '../types/polls-repo';
 
 export class PollsService implements IPollsServce {
   private static instance: PollsService | undefined;
 
-  private repo = new PollsRepo();
+  private repo: IPollsRepo;
 
   private polls: IPoll[] = [];
 
+  private initPromise?: Promise<void>;
+
   // eslint-disable-next-line no-empty-function
-  private constructor() { }
+  private constructor() {
+    this.repo = new PollsRepo();
+  }
 
   public static getInstance = async () => {
     if (!PollsService.instance) {
@@ -24,7 +29,17 @@ export class PollsService implements IPollsServce {
     return PollsService.instance;
   }
 
-  private init = async () => Promise.resolve()
+  private init = async () => {
+    if (!this.initPromise) {
+      this.initPromise = new Promise((resolve) => {
+        this.repo.get().then((polls) => {
+          this.polls = polls || [];
+          resolve();
+        });
+      });
+    }
+    return this.initPromise;
+  }
 
   private removeClosedPolls = async () => {
     const closedPolls = this.polls.filter((poll) => poll.state === PollState.Closed);
@@ -62,7 +77,7 @@ export class PollsService implements IPollsServce {
   public bindToMessage = async (poll: IPoll, message: Message): Promise<IPoll> => {
     // eslint-disable-next-line no-param-reassign
     poll.messageId = message.id;
-    await this.repo.set(this.polls);
+    await this.updateRepo();
     return poll;
   }
 

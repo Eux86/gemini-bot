@@ -8,6 +8,13 @@ import { pollHandler } from '../handlers/poll';
 import { pollClosHandler } from '../handlers/poll-close';
 import { pollVoteHandler } from '../handlers/vote';
 import { pollVoteRemoveHandler } from '../handlers/poll-vote-remove';
+import * as PollsRepoModule from '../services/polls-repo';
+import { PollsRepo } from '../services/polls-repo';
+
+jest.spyOn(PollsRepoModule, 'PollsRepo').mockReturnValue({
+  get: () => Promise.resolve([]),
+  set: () => Promise.resolve(),
+} as unknown as PollsRepo);
 
 describe('Polls bundle integration', () => {
   const spySend = jest.fn().mockReturnValue({ id: 'mock-response-message-id' });
@@ -49,6 +56,8 @@ describe('Polls bundle integration', () => {
       // eslint-disable-next-line operator-linebreak
       const expectedPollOutput =
 `
+**the poll command is new and could break**
+
 ### POLL OPEN ###
 ${pollDescription}
 
@@ -69,6 +78,8 @@ Use the \`help\` command to see how to add options to the poll and vote.
       // eslint-disable-next-line operator-linebreak
       const expectedPollOutput =
 `
+**the poll command is new and could break**
+
 ### POLL OPEN ###
 ${pollDescription}
 
@@ -90,6 +101,8 @@ Use the \`help\` command to see how to add options to the poll and vote.
       // eslint-disable-next-line operator-linebreak
       const expectedPollOutput =
 `
+**the poll command is new and could break**
+
 ### POLL OPEN ###
 ${pollDescription}
 
@@ -114,6 +127,8 @@ Use the \`help\` command to see how to add options to the poll and vote.
       // eslint-disable-next-line operator-linebreak
       const expectedPollOutput =
 `
+**the poll command is new and could break**
+
 ### POLL OPEN ###
 ${pollDescription}
 
@@ -134,6 +149,8 @@ Use the \`help\` command to see how to add options to the poll and vote.
       // eslint-disable-next-line operator-linebreak
       const expectedPollOutput =
 `
+**the poll command is new and could break**
+
 ### POLL OPEN ###
 ${pollDescription}
 

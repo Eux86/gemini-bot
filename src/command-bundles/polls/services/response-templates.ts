@@ -23,6 +23,8 @@ export const generatePollMessage = ({
 }: IPoll) => {
   const votersListString = generateVoteInfo(options, votes);
   return (`
+**the poll command is new and could break**
+
 ### POLL ${state === PollState.Open ? 'OPEN' : 'CLOSED'} ###
 ${description}
 
