@@ -5,9 +5,7 @@ module.exports = {
     es6: true,
     'jest/globals': true,
   },
-  extends: [
-    'airbnb-base',
-  ],
+  extends: ['airbnb-base'],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
@@ -16,10 +14,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2018,
   },
-  plugins: [
-    '@typescript-eslint',
-    'jest',
-  ],
+  plugins: ['@typescript-eslint', 'jest'],
   settings: {
     'import/resolver': {
       node: {
@@ -28,16 +23,21 @@ module.exports = {
     },
   },
   rules: {
+    'function-paren-newline': 'off',
+    'operator-linebreak': 'off',
     'max-len': 'off',
     'implicit-arrow-linebreak': 'off',
     'no-shadow': 'off',
     '@typescript-eslint/no-shadow': ['error'],
     'no-unused-vars': 'off',
-    '@typescript-eslint/no-unused-vars': ['error', {
-      vars: 'all',
-      args: 'after-used',
-      ignoreRestSiblings: false,
-    }],
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        vars: 'all',
+        args: 'after-used',
+        ignoreRestSiblings: false,
+      },
+    ],
     'import/prefer-default-export': 0,
     'import/extensions': [
       'error',

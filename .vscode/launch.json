@@ -8,11 +8,9 @@
       "type": "node",
       "request": "launch",
       "name": "Typescript",
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ],
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "program": "${workspaceFolder}/main.ts",
       "preLaunchTask": "build"
-    },
+    }
   ]
 }

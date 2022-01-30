@@ -6,7 +6,7 @@ import { IRollcallRepo } from '../types/rollcall-repo';
 import { RollcallRepo } from './rollcall-repo';
 
 export class RollcallService implements IRollcallService {
-  private static instance:RollcallService | undefined;
+  private static instance: RollcallService | undefined;
 
   private rollcalls: IRollcall[] = [];
 
@@ -20,7 +20,7 @@ export class RollcallService implements IRollcallService {
       await RollcallService.instance.init();
     }
     return RollcallService.instance;
-  }
+  };
 
   private constructor() {
     this.repo = new RollcallRepo();
@@ -36,7 +36,7 @@ export class RollcallService implements IRollcallService {
       });
     }
     return this.initPromise;
-  }
+  };
 
   public generateMessageContent = (rollcall: IRollcall) => `
 Rollcall started. Available commands: 
@@ -44,8 +44,12 @@ here: join the rollcall
 not-here: remove your presence from the rollcall
 rollcall-pull: pulls down the rollcall message
 
-${rollcall.participants.length} present${rollcall.participants.length > 1 ? 's' : ''}: ${rollcall.participants.join(', ')}
-${rollcall.notParticipants.length} NOT present${rollcall.participants.length > 1 ? 's' : ''}: ${rollcall.notParticipants.join(', ')}
+${rollcall.participants.length} present${
+    rollcall.participants.length > 1 ? 's' : ''
+  }: ${rollcall.participants.join(', ')}
+${rollcall.notParticipants.length} NOT present${
+    rollcall.participants.length > 1 ? 's' : ''
+  }: ${rollcall.notParticipants.join(', ')}
 `;
 
   public startToday = async (channelName: string) => {
@@ -60,23 +64,29 @@ ${rollcall.notParticipants.length} NOT present${rollcall.participants.length > 1
     this.rollcalls.push(newRollcall);
     await this.repo.set(this.rollcalls);
     return newRollcall;
-  }
+  };
 
-  public getToday = async (channelName: string): Promise<IRollcall | undefined> => {
+  public getToday = async (
+    channelName: string,
+  ): Promise<IRollcall | undefined> => {
     await this.init();
-    return this.rollcalls.find((rollcall) =>
-      rollcall.date.setHours(0, 0, 0, 0) === new Date().setHours(0, 0, 0, 0)
-      && rollcall.channelName === channelName);
+    return this.rollcalls.find(
+      (rollcall) =>
+        rollcall.date.setHours(0, 0, 0, 0) ===
+          new Date().setHours(0, 0, 0, 0) &&
+        rollcall.channelName === channelName,
+    );
   };
 
   private cleanOldRollcalls = async () => {
     await this.init();
     this.rollcalls = this.rollcalls.filter((rc) => this.notInThePast(rc.date));
-  }
+  };
 
   // private makeToday = (date: Date) => date.setHours(0, 0, 0, 0);
 
-  private notInThePast = (date: Date) => date.setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0);
+  private notInThePast = (date: Date) =>
+    date.setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0);
 
   public create = (channelName: string): IRollcall => ({
     participants: [],
@@ -84,11 +94,13 @@ ${rollcall.notParticipants.length} NOT present${rollcall.participants.length > 1
     channelName,
     messageId: undefined,
     date: new Date(),
-  })
+  });
 
   public addParticipant = async (rollcall: IRollcall, name: string) => {
     await this.init();
-    rollcall.notParticipants = rollcall.notParticipants.filter((participant) => participant !== name);
+    rollcall.notParticipants = rollcall.notParticipants.filter(
+      (participant) => participant !== name,
+    );
     if (rollcall.participants.find((registered) => registered === name)) {
       throw new Error('ALREADY_REGISTERED');
     }
@@ -97,7 +109,9 @@ ${rollcall.notParticipants.length} NOT present${rollcall.participants.length > 1
   };
 
   public removeParticipant = async (rollcall: IRollcall, name: string) => {
-    rollcall.participants = rollcall.participants.filter((participant) => participant !== name);
+    rollcall.participants = rollcall.participants.filter(
+      (participant) => participant !== name,
+    );
     if (rollcall.notParticipants.find((registered) => registered === name)) {
       throw new Error('ALREADY_NOT_REGISTERED');
     }
@@ -105,19 +119,22 @@ ${rollcall.notParticipants.length} NOT present${rollcall.participants.length > 1
     await this.repo.set(this.rollcalls);
   };
 
-  public getParticipants = (rollcall: IRollcall) => rollcall.participants
+  public getParticipants = (rollcall: IRollcall) => rollcall.participants;
 
-  public getNotParticipants = (rollcall: IRollcall) => rollcall.notParticipants
+  public getNotParticipants = (rollcall: IRollcall) => rollcall.notParticipants;
 
   public get = async () => {
     await this.init();
     return this.rollcalls;
-  }
+  };
 
-  public bindToMessage = async (rollcall: IRollcall, message: Message): Promise<void> => {
+  public bindToMessage = async (
+    rollcall: IRollcall,
+    message: Message,
+  ): Promise<void> => {
     rollcall.messageId = message.id;
     await this.repo.set(this.rollcalls);
-  }
+  };
 
   public static teardown() {
     RollcallService.instance = undefined;

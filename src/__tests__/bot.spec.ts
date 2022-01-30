@@ -3,68 +3,96 @@ import { Message } from 'discord.js';
 import Bot from '../bot';
 import { ITextCommand } from '../types/text-command';
 import { MockClient } from '../__mocks__/discord-client';
-import { commands } from '../enabled-commands';
+import { ICommandsBundle } from '../types/command-handler';
 
 // Mocked user message from discord
 // This simulates a message sent from a discord user
 const spyReply = jest.fn();
 const spyChannelSend = jest.fn();
-const createUserChatMessage: (text: string) => Message = (text) => ({
-  content: text,
-  reply: spyReply,
-  channel: {
-    send: spyChannelSend,
-  },
-} as unknown as Message);
+const createUserChatMessage: (text: string) => Message = (text) =>
+  ({
+    content: text,
+    reply: spyReply,
+    channel: {
+      send: spyChannelSend,
+    },
+  } as unknown as Message);
 
 jest.mock('discord.js');
-jest.spyOn(DiscordModule, 'Client').mockImplementation(() => new MockClient() as any);
+jest
+  .spyOn(DiscordModule, 'Client')
+  .mockImplementation(() => new MockClient() as any);
+
+// eslint-disable-next-line no-console
+console.log = () => undefined;
 
 describe('Bot', () => {
   describe('start', () => {
+    let bundles: ICommandsBundle[] | undefined;
+
     beforeEach(() => {
-      commands.splice(0, commands.length);
+      bundles = undefined;
     });
 
     it('should respond when queried with an existing command', async () => {
-      commands.push({
-        commandMatchers: ['mock-message'],
-        handler: (command: ITextCommand) => command.discordMessage.reply('mock-handler-reply'),
-        isSecret: false,
-        description: 'fake command handler',
-      });
+      bundles = [
+        {
+          mockCommand: {
+            commandMatchers: ['mock-message'],
+            handler: async (command: ITextCommand) => {
+              await command.discordMessage.reply('mock-handler-reply');
+            },
+            isSecret: false,
+            description: 'fake command handler',
+          },
+        },
+      ];
 
-      const bot = new Bot();
+      const bot = new Bot(bundles);
       await bot.start();
 
-      MockClient.fireUserChatMessageReceived(createUserChatMessage('.mock-message'));
+      MockClient.fireUserChatMessageReceived(
+        createUserChatMessage('.mock-message'),
+      );
       expect(spyReply).toBeCalledWith('mock-handler-reply');
     });
 
     it('should not respond when queried with a non existing command', async () => {
-      commands.push({
-        commandMatchers: ['mock-message'],
-        handler: (command: ITextCommand) => command.discordMessage.reply('mock-handler-reply'),
-        isSecret: false,
-        description: 'fake command handler',
-      });
+      bundles = [
+        {
+          mockCommand: {
+            commandMatchers: ['mock-message'],
+            handler: async (command: ITextCommand) => {
+              await command.discordMessage.reply('mock-handler-reply');
+            },
+            isSecret: false,
+            description: 'fake command handler',
+          },
+        },
+      ];
 
-      const bot = new Bot();
+      const bot = new Bot(bundles);
       await bot.start();
 
-      MockClient.fireUserChatMessageReceived(createUserChatMessage('not a command'));
+      MockClient.fireUserChatMessageReceived(
+        createUserChatMessage('not a command'),
+      );
       expect(spyReply).not.toBeCalled();
     });
 
     it('should respond showing the description of the command handlers when queried help command', async () => {
-      commands.push({
-        commandMatchers: ['mock'],
-        description: 'mock-description',
-        handler: jest.fn(),
-        isSecret: false,
-      });
+      bundles = [
+        {
+          mockCommand: {
+            commandMatchers: ['mock'],
+            description: 'mock-description',
+            handler: jest.fn(),
+            isSecret: false,
+          },
+        },
+      ];
 
-      const bot = new Bot();
+      const bot = new Bot(bundles);
       await bot.start();
 
       MockClient.fireUserChatMessageReceived(createUserChatMessage('.help'));
@@ -72,14 +100,18 @@ describe('Bot', () => {
     });
 
     it('should not show any help when the help command is called but the handler is secret', async () => {
-      commands.push({
-        commandMatchers: ['mock'],
-        description: 'mock-description',
-        handler: jest.fn(),
-        isSecret: true,
-      });
+      bundles = [
+        {
+          mockCommand: {
+            commandMatchers: ['mock'],
+            description: 'mock-description',
+            handler: jest.fn(),
+            isSecret: true,
+          },
+        },
+      ];
 
-      const bot = new Bot();
+      const bot = new Bot(bundles);
       await bot.start();
 
       MockClient.fireUserChatMessageReceived(createUserChatMessage('.help'));

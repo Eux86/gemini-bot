@@ -733,4 +733,4 @@ function(){
 
 
 <script src="//browser-update.org/update.min.js"></script></body></html>
-`
+`;

@@ -2,7 +2,11 @@ import { Message } from 'discord.js';
 import { IPoll } from './poll';
 
 export interface IPollsServce {
-  create: (channelName: string, description: string, options: string[]) => Promise<IPoll>;
+  create: (
+    channelName: string,
+    description: string,
+    options: string[],
+  ) => Promise<IPoll>;
 
   addOption: (channelName: string, description: string) => Promise<IPoll>;
 
@@ -12,7 +16,11 @@ export interface IPollsServce {
 
   close: (channelName: string) => Promise<IPoll>;
 
-  vote: (channelName: string, userName: string, optionIndex: number) => Promise<IPoll>;
+  vote: (
+    channelName: string,
+    userName: string,
+    optionIndex: number,
+  ) => Promise<IPoll>;
 
   getPollByChannel: (channelName: string) => IPoll;
 }

@@ -1,5 +1,3 @@
 import { mapsInfo } from './handlers';
 
-export default [
-  mapsInfo,
-];
+export default [mapsInfo];

@@ -10,14 +10,23 @@ const repeat = (text: string, times: number): string => {
 };
 
 const makeEpitaphLine = (line: string, maxLineLength: number): string => {
-  const missingSpacesEpitaph = repeat(' ', Math.max(0, Math.max(maxLineLength, 5) - line.length));
+  const missingSpacesEpitaph = repeat(
+    ' ',
+    Math.max(0, Math.max(maxLineLength, 5) - line.length),
+  );
   const epitaphLine = `         |  ${line}${missingSpacesEpitaph}  |`;
   return epitaphLine;
 };
 
 const tombstoneMaker = (epitaph: string): string => {
-  const additionalSpaces = Math.min(Math.max(0, Math.min(epitaph.length, maxEpitaphSize) - minimalEpitaphSize), maxEpitaphSize);
-  const additionalSpacesCross = Math.min(Math.max(1, additionalSpaces / 2), maxEpitaphSize);
+  const additionalSpaces = Math.min(
+    Math.max(0, Math.min(epitaph.length, maxEpitaphSize) - minimalEpitaphSize),
+    maxEpitaphSize,
+  );
+  const additionalSpacesCross = Math.min(
+    Math.max(1, additionalSpaces / 2),
+    maxEpitaphSize,
+  );
 
   const spacesInnerTombstone = repeat(' ', additionalSpaces);
   const spacesCross = repeat(' ', additionalSpacesCross);
@@ -26,12 +35,16 @@ const tombstoneMaker = (epitaph: string): string => {
 
   const regexDivideChunks = new RegExp(`.{1,${maxEpitaphSize}}`, 'g');
   const epitaphChunks = epitaph.match(regexDivideChunks) || [epitaph];
-  const longestChunkLength = Math.max(...epitaphChunks.map((line) => line.length));
-  const epitaphLines = epitaphChunks.map((line) => makeEpitaphLine(line, longestChunkLength)).join('\n');
+  const longestChunkLength = Math.max(
+    ...epitaphChunks.map((line) => line.length),
+  );
+  const epitaphLines = epitaphChunks
+    .map((line) => makeEpitaphLine(line, longestChunkLength))
+    .join('\n');
 
   // The emptyspace avoids Discord trimming the start of the message
   // eslint-disable-next-line
-  const emptySpace = "‏‏‎ ‎";
+  const emptySpace = '‏‏‎ ‎';
   // eslint-disable-next-line
   return `${emptySpace}
   ${spacesCross}           .

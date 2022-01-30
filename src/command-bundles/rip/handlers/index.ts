@@ -1,1 +1,1 @@
-export { rip } from './rip';
+export { ripHandler } from './rip';

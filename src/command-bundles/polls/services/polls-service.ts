@@ -27,7 +27,7 @@ export class PollsService implements IPollsServce {
       await PollsService.instance.init();
     }
     return PollsService.instance;
-  }
+  };
 
   private init = async () => {
     if (!this.initPromise) {
@@ -39,21 +39,29 @@ export class PollsService implements IPollsServce {
       });
     }
     return this.initPromise;
-  }
+  };
 
   private removeClosedPolls = async () => {
-    const closedPolls = this.polls.filter((poll) => poll.state === PollState.Closed);
+    const closedPolls = this.polls.filter(
+      (poll) => poll.state === PollState.Closed,
+    );
     closedPolls.forEach((toRemove) => {
       const indexOfPollToRemove = this.polls.indexOf(toRemove);
       this.polls.splice(indexOfPollToRemove, 1);
     });
     await this.updateRepo();
-  }
+  };
 
-  public create = async (channelName: string, description: string, options: string[] = []): Promise<IPoll> => {
+  public create = async (
+    channelName: string,
+    description: string,
+    options: string[] = [],
+  ): Promise<IPoll> => {
     await this.removeClosedPolls();
 
-    const olderPolls = this.polls.find((poll) => poll.channelName === channelName);
+    const olderPolls = this.polls.find(
+      (poll) => poll.channelName === channelName,
+    );
     if (olderPolls) {
       throw new Error(PollErrors.POLL_ALREADY_EXIST_IN_CHANNEL);
     }
@@ -72,16 +80,22 @@ export class PollsService implements IPollsServce {
     this.polls.push(newPoll);
     await this.updateRepo();
     return newPoll;
-  }
+  };
 
-  public bindToMessage = async (poll: IPoll, message: Message): Promise<IPoll> => {
+  public bindToMessage = async (
+    poll: IPoll,
+    message: Message,
+  ): Promise<IPoll> => {
     // eslint-disable-next-line no-param-reassign
     poll.messageId = message.id;
     await this.updateRepo();
     return poll;
-  }
+  };
 
-  public addOption = async (channelName: string, description: string): Promise<IPoll> => {
+  public addOption = async (
+    channelName: string,
+    description: string,
+  ): Promise<IPoll> => {
     if (!description) {
       throw new Error(PollErrors.POLL_ADD_OPTION_NO_DESCRIPTION_PROVIDED);
     }
@@ -89,14 +103,25 @@ export class PollsService implements IPollsServce {
     foundPoll.options.push(description);
     await this.updateRepo();
     return foundPoll;
-  }
+  };
 
-  public vote = async (channelName: string, userName: string, optionIndex: number): Promise<IPoll> => {
-    const foundPoll = this.polls.find((poll) => poll.channelName === channelName);
+  public vote = async (
+    channelName: string,
+    userName: string,
+    optionIndex: number,
+  ): Promise<IPoll> => {
+    const foundPoll = this.polls.find(
+      (poll) => poll.channelName === channelName,
+    );
     if (!foundPoll) {
       throw new Error(PollErrors.POLL_DOES_NOT_EXIST_IN_CHANNEL);
     }
-    if (!foundPoll.votes.find((vote) => vote.userName === userName && vote.optionIndex === optionIndex)) {
+    if (
+      !foundPoll.votes.find(
+        (vote) =>
+          vote.userName === userName && vote.optionIndex === optionIndex,
+      )
+    ) {
       foundPoll.votes.push({
         userName,
         optionIndex,
@@ -108,12 +133,20 @@ export class PollsService implements IPollsServce {
     return foundPoll;
   };
 
-  public unVote = async (channelName: string, userName: string, optionIndex: number): Promise<IPoll> => {
-    const foundPoll = this.polls.find((poll) => poll.channelName === channelName);
+  public unVote = async (
+    channelName: string,
+    userName: string,
+    optionIndex: number,
+  ): Promise<IPoll> => {
+    const foundPoll = this.polls.find(
+      (poll) => poll.channelName === channelName,
+    );
     if (!foundPoll) {
       throw new Error(PollErrors.POLL_DOES_NOT_EXIST_IN_CHANNEL);
     }
-    const existingVote = foundPoll.votes.find((vote) => vote.userName === userName && vote.optionIndex === optionIndex);
+    const existingVote = foundPoll.votes.find(
+      (vote) => vote.userName === userName && vote.optionIndex === optionIndex,
+    );
     if (!existingVote) {
       throw new Error(PollErrors.POLL_VOTE_DOES_NOT_EXIST);
     } else {
@@ -124,15 +157,19 @@ export class PollsService implements IPollsServce {
   };
 
   public generatePollMessage = (channelName: string): string => {
-    const foundPoll = this.polls.find((poll) => poll.channelName === channelName);
+    const foundPoll = this.polls.find(
+      (poll) => poll.channelName === channelName,
+    );
     if (!foundPoll) {
       throw new Error(PollErrors.POLL_DOES_NOT_EXIST_IN_CHANNEL);
     }
     return generatePollMessage(foundPoll);
-  }
+  };
 
   public close = async (channelName: string): Promise<IPoll> => {
-    const foundPoll = this.polls.find((poll) => poll.channelName === channelName);
+    const foundPoll = this.polls.find(
+      (poll) => poll.channelName === channelName,
+    );
     if (!foundPoll) {
       throw new Error(PollErrors.POLL_DOES_NOT_EXIST_IN_CHANNEL);
     }
@@ -142,12 +179,14 @@ export class PollsService implements IPollsServce {
   };
 
   public getPollByChannel = (channelName: string): IPoll => {
-    const foundPoll = this.polls.find((current) => current.channelName === channelName);
+    const foundPoll = this.polls.find(
+      (current) => current.channelName === channelName,
+    );
     if (!foundPoll) {
       throw new Error(PollErrors.POLL_DOES_NOT_EXIST_IN_CHANNEL);
     }
     return foundPoll;
-  }
+  };
 
-  private updateRepo = async (): Promise<void> => this.repo.set(this.polls)
+  private updateRepo = async (): Promise<void> => this.repo.set(this.polls);
 }

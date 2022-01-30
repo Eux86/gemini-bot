@@ -1,6 +1,4 @@
-export { here } from './here';
-export { hereTest } from './here-test';
+export { hereHandler } from './here';
 export { notHere } from './not-here';
-export { rollcall } from './rollcall';
-export { rollcallTest } from './rollcall-test';
-export { rollcallPull } from './rollcall-pull';
+export { rollcallHandler } from './rollcall';
+export { rollcallPullHandler } from './rollcall-pull';

@@ -1,4 +1,7 @@
-export interface IVote { userName: string, optionIndex: number}
+export interface IVote {
+  userName: string;
+  optionIndex: number;
+}
 
 export enum PollState {
   Open = 'Open',

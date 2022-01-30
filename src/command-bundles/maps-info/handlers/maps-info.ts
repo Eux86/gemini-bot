@@ -12,9 +12,7 @@ export const mapsInfo: ICommandDescription = {
   description: 'Returns info about the available servers maps',
   isSecret: false,
   // eslint-disable-next-line no-unused-vars
-  handler: async ({
-    discordMessage,
-  }) => {
+  handler: async ({ discordMessage }) => {
     const response = await mapsInfoService.getAll();
     discordMessage.channel.send(response);
   },

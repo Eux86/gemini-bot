@@ -14,6 +14,8 @@ export const pollAddHandler: CommandHandler = async ({
     const poll = await service.addOption(channelName, optionDescription);
     await pullDiscordMessage(poll, service, discordMessage.channel);
   } catch (error) {
-    await handleError(error, (message) => discordMessage.channel.send(message));
+    await handleError(error as Error, (message) =>
+      discordMessage.channel.send(message),
+    );
   }
 };

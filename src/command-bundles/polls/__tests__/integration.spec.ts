@@ -1,5 +1,4 @@
 import { Message } from 'discord.js';
-import { ISettingsService } from '../../../types/settings-service';
 import { IVote } from '../types/poll';
 import { mockDiscordMessage } from '../__mocks__/base-discord-message';
 import { errorMessages } from '../services/error-messages';
@@ -48,14 +47,17 @@ describe('Polls bundle integration', () => {
         username: vote.userName,
       },
     } as Message;
-    await pollVoteHandler({ name: 'poll-vote', args: [vote.optionIndex.toString()], discordMessage: mockedMessageCustomAuthor }, {} as ISettingsService);
+    await pollVoteHandler({
+      name: 'poll-vote',
+      args: [vote.optionIndex.toString()],
+      discordMessage: mockedMessageCustomAuthor,
+    });
   };
 
   describe('Creation of a new poll with options and votes', () => {
     it('should create a new poll when receives the command "create" with a single argument for the description', async () => {
       // eslint-disable-next-line operator-linebreak
-      const expectedPollOutput =
-`
+      const expectedPollOutput = `
 **the poll command is new and could break**
 
 ### POLL OPEN ###
@@ -69,15 +71,13 @@ Use the \`help\` command to see how to add options to the poll and vote.
         name: 'poll',
         args: pollDescription.split(' '),
         discordMessage: mockedDiscordMessage,
-      }, {} as ISettingsService);
-      expect(spySend)
-        .toHaveBeenCalledWith(expectedPollOutput);
+      });
+      expect(spySend).toHaveBeenCalledWith(expectedPollOutput);
     });
 
     it('should add an option to a poll when the command "add" is used with a description', async () => {
       // eslint-disable-next-line operator-linebreak
-      const expectedPollOutput =
-`
+      const expectedPollOutput = `
 **the poll command is new and could break**
 
 ### POLL OPEN ###
@@ -92,15 +92,13 @@ Use the \`help\` command to see how to add options to the poll and vote.
         name: 'poll-add',
         args: option1.split(' '),
         discordMessage: mockedDiscordMessage,
-      }, {} as ISettingsService);
-      expect(spySend)
-        .toHaveBeenCalledWith(expectedPollOutput);
+      });
+      expect(spySend).toHaveBeenCalledWith(expectedPollOutput);
     });
 
     it('should add a second option to a poll when the command "add" is used after another', async () => {
       // eslint-disable-next-line operator-linebreak
-      const expectedPollOutput =
-`
+      const expectedPollOutput = `
 **the poll command is new and could break**
 
 ### POLL OPEN ###
@@ -118,15 +116,13 @@ Use the \`help\` command to see how to add options to the poll and vote.
         name: 'poll-add',
         args: option2.split(' '),
         discordMessage: mockedDiscordMessage,
-      }, {} as ISettingsService);
-      expect(spySend)
-        .toHaveBeenCalledWith(expectedPollOutput);
+      });
+      expect(spySend).toHaveBeenCalledWith(expectedPollOutput);
     });
 
     it('should give feedback to the user when the "poll-vote" command is called', async () => {
       // eslint-disable-next-line operator-linebreak
-      const expectedPollOutput =
-`
+      const expectedPollOutput = `
 **the poll command is new and could break**
 
 ### POLL OPEN ###
@@ -141,14 +137,12 @@ Votes: 0
 Use the \`help\` command to see how to add options to the poll and vote.
 `;
       await callPollVote(votes[0]);
-      expect(spySend)
-        .toHaveBeenCalledWith(expectedPollOutput);
+      expect(spySend).toHaveBeenCalledWith(expectedPollOutput);
     });
 
     it('should show the poll results when the "poll-terminate" command is called', async () => {
       // eslint-disable-next-line operator-linebreak
-      const expectedPollOutput =
-`
+      const expectedPollOutput = `
 **the poll command is new and could break**
 
 ### POLL OPEN ###
@@ -168,33 +162,78 @@ Use the \`help\` command to see how to add options to the poll and vote.
         name: 'poll-close',
         args: [],
         discordMessage: mockedDiscordMessage,
-      }, {} as ISettingsService);
-      expect(spySend)
-        .toHaveBeenCalledWith(expectedPollOutput);
+      });
+      expect(spySend).toHaveBeenCalledWith(expectedPollOutput);
     });
   });
 
   describe('Error cases', () => {
     it('should return an error when a new poll is requested without a description', async () => {
-      await pollHandler({ name: 'poll', args: [], discordMessage: mockDiscordMessage({ spySend }) }, {} as ISettingsService);
-      expect(spySend).toHaveBeenCalledWith(`Error: ${errorMessages.POLL_CREATION_NO_DESCRIPTION_PROVIDED}`);
+      await pollHandler({
+        name: 'poll',
+        args: [],
+        discordMessage: mockDiscordMessage({ spySend }),
+      });
+      expect(spySend).toHaveBeenCalledWith(
+        `Error: ${errorMessages.POLL_CREATION_NO_DESCRIPTION_PROVIDED}`,
+      );
     });
 
     it('should not allow adding a vote when the vote already exist for that user', async () => {
-      await pollHandler({ name: 'poll', args: 'this is a test poll'.split(' '), discordMessage: mockDiscordMessage({ spySend }) }, {} as ISettingsService);
-      await pollAddHandler({ name: 'pollAdd', args: 'first option of my poll'.split(' '), discordMessage: mockDiscordMessage({ spySend }) }, {} as ISettingsService);
-      await pollVoteHandler({ name: 'pollVote', args: ['0'], discordMessage: mockDiscordMessage({ spySend }) }, {} as ISettingsService);
-      await pollVoteHandler({ name: 'pollVote', args: ['0'], discordMessage: mockDiscordMessage({ spySend }) }, {} as ISettingsService);
-      expect(spySend).toHaveBeenCalledWith(`Error: ${errorMessages.POLL_VOTE_ALREADY_EXISTS}`);
-      await pollClosHandler({ name: 'pollClose', args: [], discordMessage: mockDiscordMessage({ spySend }) }, {} as ISettingsService);
+      await pollHandler({
+        name: 'poll',
+        args: 'this is a test poll'.split(' '),
+        discordMessage: mockDiscordMessage({ spySend }),
+      });
+      await pollAddHandler({
+        name: 'pollAdd',
+        args: 'first option of my poll'.split(' '),
+        discordMessage: mockDiscordMessage({ spySend }),
+      });
+      await pollVoteHandler({
+        name: 'pollVote',
+        args: ['0'],
+        discordMessage: mockDiscordMessage({ spySend }),
+      });
+      await pollVoteHandler({
+        name: 'pollVote',
+        args: ['0'],
+        discordMessage: mockDiscordMessage({ spySend }),
+      });
+      expect(spySend).toHaveBeenCalledWith(
+        `Error: ${errorMessages.POLL_VOTE_ALREADY_EXISTS}`,
+      );
+      await pollClosHandler({
+        name: 'pollClose',
+        args: [],
+        discordMessage: mockDiscordMessage({ spySend }),
+      });
     });
 
     it('should not allow removing a vote when the vote does not exist for that user', async () => {
-      await pollHandler({ name: 'poll', args: 'this is a test poll'.split(' '), discordMessage: mockDiscordMessage({ spySend }) }, {} as ISettingsService);
-      await pollAddHandler({ name: 'pollAdd', args: 'first option of my poll'.split(' '), discordMessage: mockDiscordMessage({ spySend }) }, {} as ISettingsService);
-      await pollVoteRemoveHandler({ name: 'pollVote', args: ['0'], discordMessage: mockDiscordMessage({ spySend }) }, {} as ISettingsService);
-      expect(spySend).toHaveBeenCalledWith(`Error: ${errorMessages.POLL_VOTE_DOES_NOT_EXIST}`);
-      await pollClosHandler({ name: 'pollClose', args: [], discordMessage: mockDiscordMessage({ spySend }) }, {} as ISettingsService);
+      await pollHandler({
+        name: 'poll',
+        args: 'this is a test poll'.split(' '),
+        discordMessage: mockDiscordMessage({ spySend }),
+      });
+      await pollAddHandler({
+        name: 'pollAdd',
+        args: 'first option of my poll'.split(' '),
+        discordMessage: mockDiscordMessage({ spySend }),
+      });
+      await pollVoteRemoveHandler({
+        name: 'pollVote',
+        args: ['0'],
+        discordMessage: mockDiscordMessage({ spySend }),
+      });
+      expect(spySend).toHaveBeenCalledWith(
+        `Error: ${errorMessages.POLL_VOTE_DOES_NOT_EXIST}`,
+      );
+      await pollClosHandler({
+        name: 'pollClose',
+        args: [],
+        discordMessage: mockDiscordMessage({ spySend }),
+      });
     });
   });
 });

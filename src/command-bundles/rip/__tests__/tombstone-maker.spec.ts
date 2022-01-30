@@ -1,7 +1,7 @@
 import { tombstoneMaker } from '../tombstone-maker';
 
 // eslint-disable-next-line
-const emptySpace = "‏‏‎ ‎";
+const emptySpace = '‏‏‎ ‎';
 describe('Tombstone', () => {
   describe('Tombstone maker', () => {
     it('should return a well spaced tombstone when a single word is the epitaph', () => {
@@ -63,7 +63,9 @@ describe('Tombstone', () => {
          |                              |
        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       `.trim();
-      const tombstone = tombstoneMaker('this is a very long phrase with more then 26 characters');
+      const tombstone = tombstoneMaker(
+        'this is a very long phrase with more then 26 characters',
+      );
       expect(tombstone).toStrictEqual(expected);
     });
   });

@@ -11,7 +11,9 @@ export class CboxParser implements IGameServerInfoParser {
   }
 
   getMapsInfo = async (): Promise<IMapsInfo> => {
-    const data = await this.httpHelper.getPageContent('https://combatbox.net/en/');
+    const data = await this.httpHelper.getPageContent(
+      'https://combatbox.net/en/',
+    );
     const $ = cheerio.load(data);
     const selector = '#main > div > div.dominant_coal';
     const lines = $(selector).first().text().split('\n');
@@ -23,5 +25,5 @@ export class CboxParser implements IGameServerInfoParser {
       nextMapName: nextMapName || '',
       remainingTime: remainingTime || '',
     };
-  }
+  };
 }

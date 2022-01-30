@@ -1,7 +1,1 @@
-import {
-  rip,
-} from './handlers';
-
-export default [
-  rip,
-];
+export * from './commands';

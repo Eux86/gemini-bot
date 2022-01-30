@@ -16,6 +16,8 @@ export const pollVoteRemoveHandler: CommandHandler = async ({
     await pullDiscordMessage(poll, service, discordMessage.channel);
     await discordMessage.delete();
   } catch (error) {
-    await handleError(error, (message) => discordMessage.channel.send(message));
+    await handleError(error as Error, (message) =>
+      discordMessage.channel.send(message),
+    );
   }
 };

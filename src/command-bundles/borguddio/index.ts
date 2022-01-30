@@ -1,7 +1,3 @@
-import {
-  borguddio,
-} from './handlers';
+import { borguddio } from './handlers';
 
-export default [
-  borguddio,
-];
+export default [borguddio];
