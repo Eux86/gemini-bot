@@ -6,13 +6,10 @@
   "scripts": {
     "build": "tsc",
     "start": "dotenv -- cross-var tsc && node dist/main.js",
-    "prune": "npm prune --production",
-    "compress-output": "tar -czf output.tar ./dist/ ./node_modules/",
-    "remote-create-image": "dotenv -- cross-var docker build -f arm.Dockerfile -t $DOCKER_IMAGE_NAME .",
+    "remote-create-image": "dotenv -- cross-var docker build -f arm.Dockerfile -t %DOCKER_IMAGE_NAME% .",
     "remote-stop-and-remove-container": "dotenv -- cross-var docker stop %DOCKER_CONTAINER_NAME% || true && dotenv -- cross-var docker rm %DOCKER_CONTAINER_NAME% || true",
     "remote-run-container": "dotenv -- cross-var docker run --restart=always -d --name %DOCKER_CONTAINER_NAME% -e project_id=%project_id% -e client_email=%client_email% -e private_key=%private_key% -e BOT_TOKEN=%BOT_TOKEN% %DOCKER_IMAGE_NAME%",
-    "deploy": "dotenv -- cross-var echo Deploying to:$DOCKER_HOST && npm run remote-create-image",
-    "deploy_backup": "dotenv cross-var echo Deploying to:%DOCKER_HOST% && npm run prune && npm run compress-output && npm run remote-create-image && npm run remote-stop-and-remove-container && npm run remote-run-container",
+    "deploy": "dotenv cross-var npm run remote-create-image && npm run remote-stop-and-remove-container && npm run remote-run-container",
     "debug": "npm run build && node --nolazy --inspect-brk=9229 dist/main.js",
     "test": "jest",
     "lint": "eslint ./src/**/*.ts",
@@ -24,17 +21,17 @@
   "dependencies": {
     "@google-cloud/firestore": "^4.11.1",
     "@google-cloud/storage": "^5.8.5",
-    "@types/node": "^14.14.31",
-    "@types/ws": "^7.4.0",
     "cheerio": "^1.0.0-rc.5",
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
     "firebase": "^8.6.1",
     "firebase-admin": "^9.8.0",
-    "rcon": "^1.0.3",
-    "typescript": "^4.2.2"
+    "rcon": "^1.0.3"
   },
   "devDependencies": {
+    "typescript": "^4.2.2",
+    "@types/node": "^14.14.31",
+    "@types/ws": "^7.4.0",
     "@babel/core": "^7.13.8",
     "@babel/preset-env": "^7.13.8",
     "@babel/preset-typescript": "^7.13.0",

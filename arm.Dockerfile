@@ -7,10 +7,12 @@ WORKDIR /usr/src/app
 #
 #RUN tar -xf ./output.tar
 
-COPY . .
+COPY ./package.json .
+COPY ./package-lock.json .
+COPY ./dist ./dist
 
-RUN npm ci
+RUN npm i --only=prod
 
-RUN npm run build
+#RUN npm run build
 
 CMD [ "node", "./dist/main.js" ]
