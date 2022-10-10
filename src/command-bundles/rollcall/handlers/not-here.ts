@@ -1,6 +1,6 @@
 import { RollcallService } from '../services/rollcall-service';
 import { CommandHandler } from '../../../types/command-handler';
-import { rollcallHandler } from './rollcall';
+import { createRollCall, rollcallHandler } from './rollcall';
 
 function getRandomInt(max: number): number {
   const part = Math.random() * max;
@@ -25,7 +25,7 @@ export const notHere: CommandHandler = async ({ discordMessage }) => {
       discordMessage.channel.id,
     );
     if (!todayRollcall) {
-      await rollcallHandler(discordMessage);
+      await createRollCall(rollcallService, discordMessage);
       return;
     }
     await rollcallService.removeParticipant(
