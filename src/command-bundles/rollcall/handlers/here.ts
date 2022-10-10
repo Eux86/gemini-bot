@@ -1,5 +1,6 @@
 import { RollcallService } from '../services/rollcall-service';
 import { CommandHandler } from '../../../types/command-handler';
+import { rollcallHandler } from "./rollcall"
 
 export const hereHandler: CommandHandler = async ({ discordMessage }) => {
   const rollcallService = await RollcallService.getInstance();
@@ -8,9 +9,7 @@ export const hereHandler: CommandHandler = async ({ discordMessage }) => {
       discordMessage.channel.id,
     );
     if (!todayRollcall) {
-      await discordMessage.channel.send(
-        'There is no rollcall yet :/ Start a new rollcall first!',
-      );
+      await rollcallHandler(discordMessage);
       return;
     }
     await rollcallService.addParticipant(
