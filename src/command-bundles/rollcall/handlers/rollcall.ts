@@ -5,7 +5,7 @@ import { createRollCall } from './common/create-roll-call';
 export const rollcallHandler: CommandHandler = async ({ discordMessage }) => {
   const rollcallService = await RollcallService.getInstance();
   try {
-    await createRollCall(rollcallService, discordMessage);
+    await createRollCall(rollcallService, discordMessage.channel);
   } catch (e) {
     switch ((e as Error).message || e) {
       case 'ROLLCALL_ALREADY_EXISTS':
