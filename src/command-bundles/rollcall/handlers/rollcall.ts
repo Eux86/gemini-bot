@@ -1,16 +1,6 @@
 import { RollcallService } from '../services/rollcall-service';
 import { CommandHandler } from '../../../types/command-handler';
-import { Message } from 'discord.js';
-
-export const createRollCall = async (rollcallService: RollcallService, discordMessage: Message) => {
-  const todayRollcall = await rollcallService.startToday(
-    discordMessage.channel.id,
-  );
-  const messageContent =
-    rollcallService.generateMessageContent(todayRollcall);
-  const rollcallMessage = await discordMessage.channel.send(messageContent);
-  await rollcallService.bindToMessage(todayRollcall, rollcallMessage);
-}
+import { createRollCall } from './common/create-roll-call';
 
 export const rollcallHandler: CommandHandler = async ({ discordMessage }) => {
   const rollcallService = await RollcallService.getInstance();

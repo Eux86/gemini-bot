@@ -1,17 +1,17 @@
 import { RollcallService } from '../services/rollcall-service';
 import { CommandHandler } from '../../../types/command-handler';
-import { createRollCall } from "./rollcall"
+import {
+  createRollCall,
+  getOrCreateTodayRollcall,
+} from './common/create-roll-call';
 
 export const hereHandler: CommandHandler = async ({ discordMessage }) => {
   const rollcallService = await RollcallService.getInstance();
   try {
-    const todayRollcall = await rollcallService.getToday(
-      discordMessage.channel.id,
+    let todayRollcall = await getOrCreateTodayRollcall(
+      discordMessage.channel,
+      rollcallService,
     );
-    if (!todayRollcall) {
-      await createRollCall(rollcallService, discordMessage);
-      return;
-    }
     await rollcallService.addParticipant(
       todayRollcall,
       discordMessage.author.username,
@@ -29,7 +29,7 @@ export const hereHandler: CommandHandler = async ({ discordMessage }) => {
   } catch (e) {
     switch ((e as Error).message || e) {
       case 'ALREADY_REGISTERED':
-        await discordMessage.channel.send('You are alredy registered');
+        await discordMessage.channel.send('You are already registered');
         break;
       case 'Missing Permissions':
         await discordMessage.channel.send(
