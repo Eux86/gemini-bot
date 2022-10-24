@@ -1,3 +1,5 @@
+/firebase-keys/
+.vscode
 .idea
 *.iml
 
@@ -103,4 +105,3 @@ public/
 
 # End of https://www.gitignore.io/api/node
 
-/firebase-keys/

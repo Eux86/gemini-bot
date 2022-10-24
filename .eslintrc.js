@@ -38,6 +38,8 @@ module.exports = {
         ignoreRestSiblings: false,
       },
     ],
+    'object-curly-newline': 0,
+    'class-methods-use-this': 0,
     'import/prefer-default-export': 0,
     'import/extensions': [
       'error',

@@ -1,9 +1,11 @@
-import { CommandHandler } from '../../../types/command-handler';
+import { PrefixCommandHandler } from '../../../types/command-handler';
 import { PollsService } from '../services/polls-service';
 import { handleError } from '../services/errors-handler';
 import { pullDiscordMessage } from './common/pull-message';
 
-export const pollClosHandler: CommandHandler = async ({ discordMessage }) => {
+export const pollClosHandler: PrefixCommandHandler = async ({
+  discordMessage,
+}) => {
   const service = await PollsService.getInstance();
   const channelName = discordMessage.channel.id;
   try {

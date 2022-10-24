@@ -11,7 +11,7 @@ COPY ./package.json .
 COPY ./package-lock.json .
 COPY ./dist ./dist
 
-RUN npm i --only=prod
+RUN npm ci --only=prod --verbose
 
 #RUN npm run build
 

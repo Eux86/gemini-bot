@@ -9,8 +9,7 @@ export const handleError = async (
   if (errorMessage) {
     await sendFunction(`Error: ${errorMessage}`);
   } else {
-    // eslint-disable-next-line no-console
-    console.log(error);
+    console.error(error);
     await sendFunction(`Error: ${error}`);
   }
 };

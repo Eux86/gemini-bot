@@ -4,6 +4,11 @@ import { IRollcall } from '../types/rollcall';
 import { IRollcallService } from '../types/rollcall-service';
 import { IRollcallRepo } from '../types/rollcall-repo';
 import { RollcallRepo } from './rollcall-repo';
+import {
+  RollcallAlreadyExistException,
+  RollcallUserAlreadyNotRegisteredException,
+  RollcallUserAlreadyRegisteredException,
+} from './errors';
 
 export class RollcallService implements IRollcallService {
   private static instance: RollcallService | undefined;
@@ -38,26 +43,12 @@ export class RollcallService implements IRollcallService {
     return this.initPromise;
   };
 
-  public generateMessageContent = (rollcall: IRollcall) => `
-Rollcall started. Available commands: 
-here: join the rollcall
-not-here: remove your presence from the rollcall
-rollcall-pull: pulls down the rollcall message
-
-${rollcall.participants.length} present${
-    rollcall.participants.length > 1 ? 's' : ''
-  }: ${rollcall.participants.join(', ')}
-${rollcall.notParticipants.length} NOT present${
-    rollcall.participants.length > 1 ? 's' : ''
-  }: ${rollcall.notParticipants.join(', ')}
-`;
-
   public startToday = async (channelName: string) => {
     await this.init();
     await this.cleanOldRollcalls();
 
     if (await this.getToday(channelName)) {
-      throw new Error('ROLLCALL_ALREADY_EXISTS');
+      throw new RollcallAlreadyExistException();
     }
 
     const newRollcall = await this.create(channelName);
@@ -102,7 +93,7 @@ ${rollcall.notParticipants.length} NOT present${
       (participant) => participant !== name,
     );
     if (rollcall.participants.find((registered) => registered === name)) {
-      throw new Error('ALREADY_REGISTERED');
+      throw new RollcallUserAlreadyRegisteredException();
     }
     rollcall.participants.push(name);
     await this.repo.set(this.rollcalls);
@@ -113,7 +104,7 @@ ${rollcall.notParticipants.length} NOT present${
       (participant) => participant !== name,
     );
     if (rollcall.notParticipants.find((registered) => registered === name)) {
-      throw new Error('ALREADY_NOT_REGISTERED');
+      throw new RollcallUserAlreadyNotRegisteredException();
     }
     rollcall.notParticipants.push(name);
     await this.repo.set(this.rollcalls);

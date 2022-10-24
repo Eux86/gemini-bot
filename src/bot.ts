@@ -1,6 +1,23 @@
-import { Channel, Client, Message, TextChannel } from 'discord.js';
+import {
+  ButtonInteraction,
+  CacheType,
+  ChatInputCommandInteraction,
+  Client,
+  Events,
+  GatewayIntentBits,
+  Message,
+  REST,
+  Routes,
+  TextChannel,
+} from 'discord.js';
 import { ITextCommand } from './types/text-command';
-import { ICommandDescription, ICommandsBundle } from './types/command-handler';
+import {
+  ButtonCommandDescription,
+  CommandDescription,
+  ICommandsBundle,
+  PrefixCommandDescription,
+  SlashCommandDescription,
+} from './types/command-handler';
 
 export default class Bot {
   commandPrefix = '.';
@@ -13,32 +30,59 @@ export default class Bot {
       this.commandPrefix = prefix;
     }
     console.log('Prefix: ', this.commandPrefix);
-    this.client = new Client();
+    this.client = new Client({
+      intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMessages,
+      ],
+    });
   }
 
   public async start() {
     await this.client.login(process.env.BOT_TOKEN);
     const commandHandlers = this.loadCommandHandlers();
+    const prefixCommandHandlers = commandHandlers.filter(
+      (command): command is PrefixCommandDescription =>
+        command.type === 'prefix',
+    );
+    const slashCommandHandlers = commandHandlers.filter(
+      (command): command is SlashCommandDescription => command.type === 'slash',
+    );
+    const buttonCommandHandlers = commandHandlers.filter(
+      (command): command is ButtonCommandDescription =>
+        command.type === 'button',
+    );
 
-    this.client.on('message', (msg) => {
+    this.client.on('messageCreate', (msg) => {
       const command = this.interceptTextCommands(msg);
       if (!command) return;
 
       // Exception for command .help, it will describe all other commands
       this.handleHelpCommand(command);
 
-      // Cycles thorough all the available commands
-      this.handleCommand(commandHandlers, command);
+      this.handlePrefixCommand(prefixCommandHandlers, command);
+
+      this.handleInit(slashCommandHandlers, command);
     });
 
     this.client.on('ready', () => {
       this.announceBotInTestChannels();
     });
+
+    this.client.on(Events.InteractionCreate, (interaction) => {
+      if (interaction.isChatInputCommand()) {
+        this.handleSlashCommand(slashCommandHandlers, interaction);
+      }
+      if (interaction.isButton()) {
+        this.handleButtonCommand(buttonCommandHandlers, interaction);
+      }
+    });
   }
 
   private announceBotInTestChannels() {
     this.client.channels.cache.forEach((channel) => {
-      if (this.isTextChannel(channel)) {
+      if (channel instanceof TextChannel) {
         if (channel.name === 'bot-tests') {
           channel.send(`Hello! ${this.client.user?.tag} is now available 😎`);
         }
@@ -46,29 +90,112 @@ export default class Bot {
     });
   }
 
-  private handleCommand(
-    commandHandlers: ICommandDescription[],
+  // eslint-disable-next-line class-methods-use-this
+  private handlePrefixCommand(
+    commandHandlers: PrefixCommandDescription[],
     textCommand: ITextCommand,
   ) {
-    console.log(`Received: ${textCommand.name} with ${textCommand.args}`);
-    if (
-      !commandHandlers.find((commandHandler) =>
-        commandHandler.commandMatchers.includes(textCommand.name),
-      )
-    )
+    // console.log(`Received: ${textCommand.name} with ${textCommand.args}`);
+    const currentHandler = commandHandlers.find((commandHandler) =>
+      commandHandler.commandMatchers.includes(textCommand.name),
+    );
+    if (!currentHandler) {
       return;
+    }
     try {
-      const commandHandler = commandHandlers.find((handler) =>
-        handler.commandMatchers.includes(textCommand.name),
-      );
-      if (commandHandler) {
-        commandHandler.handler(textCommand);
-      } else {
-        textCommand.discordMessage.reply(`No such command: ${textCommand}`);
-      }
+      currentHandler.handler?.(textCommand);
     } catch (error) {
       console.error(error);
-      textCommand.discordMessage.reply('Oops! Cannot execute this command 😟');
+      textCommand.discordMessage.reply(
+        'Oops! Cannot execute this command: something went wrong 😟',
+      );
+    }
+  }
+
+  private handleSlashCommand(
+    commandHandlers: SlashCommandDescription[],
+    interaction: ChatInputCommandInteraction<CacheType>,
+  ) {
+    console.log(`Received interaction: ${interaction}`);
+    const currentHandler = commandHandlers.find(
+      (commandHandler) => commandHandler.name === interaction.commandName,
+    );
+    if (!currentHandler) {
+      return;
+    }
+    try {
+      currentHandler.handler?.(interaction);
+    } catch (error) {
+      console.error(error);
+      interaction.reply(
+        'Oops! Cannot execute this command: something went wrong 😟',
+      );
+    }
+  }
+
+  private handleButtonCommand(
+    commandHandlers: ButtonCommandDescription[],
+    interaction: ButtonInteraction<CacheType>,
+  ) {
+    console.log(
+      `Received button interaction: ${JSON.stringify(interaction.customId)}`,
+    );
+    const currentHandler = commandHandlers.find(
+      (commandHandler) => commandHandler.name === interaction.customId,
+    );
+    if (!currentHandler) {
+      return;
+    }
+    try {
+      currentHandler.handler(interaction);
+    } catch (error) {
+      console.error(error);
+      interaction.reply(
+        'Oops! Cannot execute this command: something went wrong 😟',
+      );
+    }
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  private async handleInit(
+    commandHandlers: SlashCommandDescription[],
+    textCommand: ITextCommand,
+  ) {
+    if (textCommand.name !== 'register') return;
+
+    if (!process.env.BOT_TOKEN) {
+      throw new Error('Missing BOT_TOKEN in env variables');
+    }
+    if (!process.env.CLIENT_ID) {
+      throw new Error('Missing CLIENT_ID in env variables');
+    }
+
+    const commandsList = commandHandlers.map((command) => ({
+      name: command.name,
+      description: command.description,
+      options: [],
+      name_localizations: undefined,
+      description_localizations: undefined,
+      default_permission: undefined,
+      default_member_permissions: undefined,
+      dm_permission: undefined,
+    }));
+
+    const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
+    try {
+      const data = await rest.put(
+        Routes.applicationCommands(process.env.CLIENT_ID),
+        { body: commandsList },
+      );
+      textCommand.discordMessage.channel.send(
+        `Successfully reloaded ${
+          (data as any)?.length
+        } application (/) commands.`,
+      );
+    } catch (error) {
+      textCommand.discordMessage.channel.send(
+        `Error reloading commands ${JSON.stringify(error)}`,
+      );
     }
   }
 
@@ -91,8 +218,8 @@ export default class Bot {
     };
   }
 
-  private loadCommandHandlers(): ICommandDescription[] {
-    const clientCommands: ICommandDescription[] = [];
+  private loadCommandHandlers(): CommandDescription[] {
+    const clientCommands: CommandDescription[] = [];
 
     this.commandBundles.forEach((commandBundle) =>
       Object.values(commandBundle).forEach((commandDescription) =>
@@ -102,24 +229,10 @@ export default class Bot {
     return clientCommands;
   }
 
-  broadcastOnAllTextChannels = (message: string) => {
-    this.client.channels.cache.forEach((channel) => {
-      if (this.isTextChannel(channel)) {
-        channel.send(message);
-      }
-    });
-  };
-
-  isTextChannel = (channel: Channel): channel is TextChannel =>
-    channel.type === 'text';
-
   getHelpText = (): string => {
-    const cmds = this.commandBundles.reduce<ICommandDescription[]>(
-      (acc, curr) => {
-        const commandsDescriptions = Object.values(curr);
-        return [...acc, ...commandsDescriptions];
-      },
-      [],
+    const cmds = this.loadCommandHandlers().filter(
+      (command): command is PrefixCommandDescription =>
+        command.type === 'prefix',
     );
     let helpText = '';
     // eslint-disable-next-line no-restricted-syntax

@@ -1,9 +1,11 @@
 import { RollcallService } from '../services/rollcall-service';
-import { CommandHandler } from '../../../types/command-handler';
+import { PrefixCommandHandler } from '../../../types/command-handler';
 import {
-  createRollCall,
   getOrCreateTodayRollcall,
-} from './common/create-roll-call';
+  updateExistingRollcall,
+} from './common/common';
+import { RollcallUserAlreadyNotRegisteredException } from '../services/errors';
+import { Message } from 'discord.js';
 
 function getRandomInt(max: number): number {
   const part = Math.random() * max;
@@ -21,10 +23,28 @@ const disappointedMessages = [
 
 const passiveAggressiveAnswerOneIn = 6;
 
-export const notHere: CommandHandler = async ({ discordMessage }) => {
+const sendPassiveAggresiveMessageAndDelete = async (
+  discordMessage: Message,
+) => {
+  const random = getRandomInt(passiveAggressiveAnswerOneIn - 1);
+  if (random > 0) {
+    await discordMessage.delete();
+  } else {
+    const randomMessageIndex = getRandomInt(disappointedMessages.length - 1);
+    await discordMessage.reply(disappointedMessages[randomMessageIndex]);
+  }
+};
+
+export const notHere: PrefixCommandHandler = async ({ discordMessage }) => {
   const rollcallService = await RollcallService.getInstance();
+
+  if (!discordMessage.channel) {
+    await discordMessage.reply('Something went wrong');
+    console.error('Could not read the channel');
+    return;
+  }
   try {
-    let todayRollcall = await getOrCreateTodayRollcall(
+    const todayRollcall = await getOrCreateTodayRollcall(
       discordMessage.channel,
       rollcallService,
     );
@@ -32,35 +52,23 @@ export const notHere: CommandHandler = async ({ discordMessage }) => {
       todayRollcall,
       discordMessage.author.username,
     );
-    if (todayRollcall.messageId) {
-      const rollcallMessage = await discordMessage.channel.messages.fetch(
-        todayRollcall.messageId,
-      );
-      await rollcallMessage.edit(
-        rollcallService.generateMessageContent(todayRollcall),
-      );
-    }
-    const random = getRandomInt(passiveAggressiveAnswerOneIn - 1);
-    if (random > 0) {
-      await discordMessage.delete({ timeout: 1 });
-    } else {
-      const randomMessageIndex = getRandomInt(disappointedMessages.length - 1);
-      await discordMessage.reply(disappointedMessages[randomMessageIndex]);
-    }
+    await updateExistingRollcall(discordMessage, todayRollcall);
+    await sendPassiveAggresiveMessageAndDelete(discordMessage);
   } catch (e) {
-    switch ((e as Error).message || e) {
-      case 'ALREADY_NOT_REGISTERED':
-        await discordMessage.channel.send(
-          "You are not registered in today's rollcall",
-        );
-        break;
-      case 'Missing Permissions':
-        await discordMessage.channel.send(
+    if (e instanceof RollcallUserAlreadyNotRegisteredException) {
+      await discordMessage.reply({
+        content: "You are not registered in today's rollcall",
+      });
+    } else if (e === 'Missing Permissions') {
+      await discordMessage.reply({
+        content:
           'I cannot delete messages. Please give me the right permission',
-        );
-        break;
-      default:
-        await discordMessage.channel.send(`Something went wrong :/\n${e}`);
+      });
+    } else {
+      console.error(e);
+      await discordMessage.reply({
+        content: 'Something went wrong :/',
+      });
     }
   }
 };

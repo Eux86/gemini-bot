@@ -1,11 +1,11 @@
-import { DMChannel, NewsChannel, TextChannel } from 'discord.js';
+import { GuildTextBasedChannel, TextBasedChannel } from 'discord.js';
 import { IPoll } from '../../types/poll';
 import { IPollsServce } from '../../types/polls-service';
 
 export const pullDiscordMessage = async (
   poll: IPoll,
   pollService: IPollsServce,
-  channel: TextChannel | DMChannel | NewsChannel,
+  channel: GuildTextBasedChannel | TextBasedChannel,
 ) => {
   const messageContent = pollService.generatePollMessage(channel.id);
   const pollMessage = await channel.send(messageContent);

@@ -116,14 +116,14 @@ describe('Rollcalls', () => {
       const temp = global.Date;
       jest
         .spyOn(global, 'Date')
-        .mockImplementationOnce(() => yesterday as unknown as string);
+        .mockImplementationOnce(() => yesterday as unknown as Date);
       await manager.startToday(mockChannelName);
 
       expect((await manager.get()).length).toBe(1);
 
       jest
         .spyOn(global, 'Date')
-        .mockImplementationOnce(() => today as unknown as string);
+        .mockImplementationOnce(() => today as unknown as Date);
       await manager.startToday(mockChannelName);
 
       expect((await manager.get()).length).toBe(1);
