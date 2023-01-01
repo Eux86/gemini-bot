@@ -1,14 +1,11 @@
 import { RollcallService } from '../services/rollcall-service';
 import { CommandHandler } from '../../../types/command-handler';
-import {
-  createRollCall,
-  getOrCreateTodayRollcall,
-} from './common/create-roll-call';
+import { getOrCreateTodayRollcall } from './common/create-roll-call';
 
 export const hereHandler: CommandHandler = async ({ discordMessage }) => {
   const rollcallService = await RollcallService.getInstance();
   try {
-    let todayRollcall = await getOrCreateTodayRollcall(
+    const todayRollcall = await getOrCreateTodayRollcall(
       discordMessage.channel,
       rollcallService,
     );
@@ -25,7 +22,7 @@ export const hereHandler: CommandHandler = async ({ discordMessage }) => {
         rollcallService.generateMessageContent(todayRollcall),
       );
     }
-    await discordMessage.delete({ timeout: 1 });
+    await discordMessage.delete();
   } catch (e) {
     switch ((e as Error).message || e) {
       case 'ALREADY_REGISTERED':

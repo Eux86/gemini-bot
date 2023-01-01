@@ -1,9 +1,6 @@
 import { RollcallService } from '../services/rollcall-service';
 import { CommandHandler } from '../../../types/command-handler';
-import {
-  createRollCall,
-  getOrCreateTodayRollcall,
-} from './common/create-roll-call';
+import { getOrCreateTodayRollcall } from './common/create-roll-call';
 
 function getRandomInt(max: number): number {
   const part = Math.random() * max;
@@ -24,7 +21,7 @@ const passiveAggressiveAnswerOneIn = 6;
 export const notHere: CommandHandler = async ({ discordMessage }) => {
   const rollcallService = await RollcallService.getInstance();
   try {
-    let todayRollcall = await getOrCreateTodayRollcall(
+    const todayRollcall = await getOrCreateTodayRollcall(
       discordMessage.channel,
       rollcallService,
     );
@@ -42,7 +39,7 @@ export const notHere: CommandHandler = async ({ discordMessage }) => {
     }
     const random = getRandomInt(passiveAggressiveAnswerOneIn - 1);
     if (random > 0) {
-      await discordMessage.delete({ timeout: 1 });
+      await discordMessage.delete();
     } else {
       const randomMessageIndex = getRandomInt(disappointedMessages.length - 1);
       await discordMessage.reply(disappointedMessages[randomMessageIndex]);

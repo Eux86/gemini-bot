@@ -1,4 +1,4 @@
-import { Channel, Client, Message, TextChannel } from 'discord.js';
+import { Client, GatewayIntentBits, Message, TextChannel } from 'discord.js';
 import { ITextCommand } from './types/text-command';
 import { ICommandDescription, ICommandsBundle } from './types/command-handler';
 
@@ -13,14 +13,21 @@ export default class Bot {
       this.commandPrefix = prefix;
     }
     console.log('Prefix: ', this.commandPrefix);
-    this.client = new Client();
+    this.client = new Client({
+      intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMessages,
+      ],
+    });
   }
 
   public async start() {
     await this.client.login(process.env.BOT_TOKEN);
     const commandHandlers = this.loadCommandHandlers();
 
-    this.client.on('message', (msg) => {
+    this.client.on('messageCreate', (msg) => {
+      console.log(msg.content);
       const command = this.interceptTextCommands(msg);
       if (!command) return;
 
@@ -38,7 +45,7 @@ export default class Bot {
 
   private announceBotInTestChannels() {
     this.client.channels.cache.forEach((channel) => {
-      if (this.isTextChannel(channel)) {
+      if (channel instanceof TextChannel) {
         if (channel.name === 'bot-tests') {
           channel.send(`Hello! ${this.client.user?.tag} is now available 😎`);
         }
@@ -46,29 +53,25 @@ export default class Bot {
     });
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private handleCommand(
     commandHandlers: ICommandDescription[],
     textCommand: ITextCommand,
   ) {
     console.log(`Received: ${textCommand.name} with ${textCommand.args}`);
-    if (
-      !commandHandlers.find((commandHandler) =>
-        commandHandler.commandMatchers.includes(textCommand.name),
-      )
-    )
+    const currentHandler = commandHandlers.find((commandHandler) =>
+      commandHandler.commandMatchers.includes(textCommand.name),
+    );
+    if (!currentHandler) {
       return;
+    }
     try {
-      const commandHandler = commandHandlers.find((handler) =>
-        handler.commandMatchers.includes(textCommand.name),
-      );
-      if (commandHandler) {
-        commandHandler.handler(textCommand);
-      } else {
-        textCommand.discordMessage.reply(`No such command: ${textCommand}`);
-      }
+      currentHandler.handler(textCommand);
     } catch (error) {
       console.error(error);
-      textCommand.discordMessage.reply('Oops! Cannot execute this command 😟');
+      textCommand.discordMessage.reply(
+        'Oops! Cannot execute this command: something went wrong 😟',
+      );
     }
   }
 
@@ -104,14 +107,11 @@ export default class Bot {
 
   broadcastOnAllTextChannels = (message: string) => {
     this.client.channels.cache.forEach((channel) => {
-      if (this.isTextChannel(channel)) {
+      if (channel instanceof TextChannel) {
         channel.send(message);
       }
     });
   };
-
-  isTextChannel = (channel: Channel): channel is TextChannel =>
-    channel.type === 'text';
 
   getHelpText = (): string => {
     const cmds = this.commandBundles.reduce<ICommandDescription[]>(

@@ -1,10 +1,10 @@
-import { DMChannel, NewsChannel, TextChannel } from 'discord.js';
+import { GuildTextBasedChannel, TextBasedChannel } from 'discord.js';
 import { IRollcall } from '../../types/rollcall';
 import { IRollcallService } from '../../types/rollcall-service';
 
 export const createRollCall = async (
   rollcallService: IRollcallService,
-  channel: TextChannel | DMChannel | NewsChannel,
+  channel: GuildTextBasedChannel | TextBasedChannel,
 ): Promise<IRollcall> => {
   const todayRollcall = await rollcallService.startToday(channel.id);
   const messageContent = rollcallService.generateMessageContent(todayRollcall);
@@ -14,7 +14,7 @@ export const createRollCall = async (
 };
 
 export const getOrCreateTodayRollcall = async (
-  channel: TextChannel | DMChannel | NewsChannel,
+  channel: GuildTextBasedChannel | TextBasedChannel,
   rollcallService: IRollcallService,
 ): Promise<IRollcall> => {
   let todayRollcall = await rollcallService.getToday(channel.id);
