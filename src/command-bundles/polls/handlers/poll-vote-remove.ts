@@ -1,9 +1,9 @@
-import { CommandHandler } from '../../../types/command-handler';
+import { PrefixCommandHandler } from '../../../types/command-handler';
 import { PollsService } from '../services/polls-service';
 import { pullDiscordMessage } from './common/pull-message';
 import { handleError } from '../services/errors-handler';
 
-export const pollVoteRemoveHandler: CommandHandler = async ({
+export const pollVoteRemoveHandler: PrefixCommandHandler = async ({
   discordMessage,
   args,
 }) => {

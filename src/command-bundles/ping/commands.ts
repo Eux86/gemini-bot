@@ -4,16 +4,15 @@ import { pingHandler } from './handlers/ping';
 
 export const commands: ICommandsBundle = {
   ping: {
-    commandMatchers: ['ping'],
+    type: 'slash',
+    name: 'ping',
     description: 'test command to verify if the bot is still alive',
-    isSecret: true,
-    interactionHandler: pingHandler,
+    handler: pingHandler,
   },
   pang: {
-    commandMatchers: ['pang'],
-    handler: async () => undefined,
-    isSecret: false,
+    type: 'button',
+    name: 'pang',
     description: '',
-    interactionHandler: pangButtonHandler,
+    handler: pangButtonHandler,
   },
 };

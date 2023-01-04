@@ -2,7 +2,6 @@ import { Message } from 'discord.js';
 import { IRollcall } from './rollcall';
 
 export interface IRollcallService {
-  generateMessageContent: (rollcall: IRollcall) => string;
   create: (channelName: string) => IRollcall;
   addParticipant: (rollcall: IRollcall, name: string) => Promise<void>;
   removeParticipant: (rollcall: IRollcall, name: string) => Promise<void>;

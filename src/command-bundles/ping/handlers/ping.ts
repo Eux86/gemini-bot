@@ -1,8 +1,8 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import { InteractionHandler } from '../../../types/command-handler';
+import { SlashCommandHandler } from '../../../types/command-handler';
 
-export const pingHandler: InteractionHandler = async (interaction) => {
-  const row = new ActionRowBuilder().addComponents(
+export const pingHandler: SlashCommandHandler = async (interaction) => {
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
       .setCustomId('pang')
       .setLabel('Pang!')

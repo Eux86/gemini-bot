@@ -1,6 +1,6 @@
-import { ICommandDescription } from '../../../types/command-handler';
+import { CommandDescription } from '../../../types/command-handler';
 
-export const borguddio: ICommandDescription = {
+export const borguddio: CommandDescription = {
   commandMatchers: [
     'borguddio',
     'porcoddio',

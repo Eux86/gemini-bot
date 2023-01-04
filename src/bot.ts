@@ -1,17 +1,23 @@
 import {
+  ButtonInteraction,
+  CacheType,
+  ChatInputCommandInteraction,
   Client,
   Events,
   GatewayIntentBits,
   Message,
-  TextChannel,
   REST,
   Routes,
-  CacheType,
-  ChatInputCommandInteraction,
-  ButtonInteraction,
+  TextChannel,
 } from 'discord.js';
 import { ITextCommand } from './types/text-command';
-import { ICommandDescription, ICommandsBundle } from './types/command-handler';
+import {
+  ButtonCommandDescription,
+  CommandDescription,
+  ICommandsBundle,
+  PrefixCommandDescription,
+  SlashCommandDescription,
+} from './types/command-handler';
 
 export default class Bot {
   commandPrefix = '.';
@@ -36,6 +42,17 @@ export default class Bot {
   public async start() {
     await this.client.login(process.env.BOT_TOKEN);
     const commandHandlers = this.loadCommandHandlers();
+    const prefixCommandHandlers = commandHandlers.filter(
+      (command): command is PrefixCommandDescription =>
+        command.type === 'prefix',
+    );
+    const slashCommandHandlers = commandHandlers.filter(
+      (command): command is SlashCommandDescription => command.type === 'slash',
+    );
+    const buttonCommandHandlers = commandHandlers.filter(
+      (command): command is ButtonCommandDescription =>
+        command.type === 'button',
+    );
 
     this.client.on('messageCreate', (msg) => {
       console.log(msg.content);
@@ -45,10 +62,9 @@ export default class Bot {
       // Exception for command .help, it will describe all other commands
       this.handleHelpCommand(command);
 
-      // Cycles thorough all the available commands
-      this.handleCommand(commandHandlers, command);
+      this.handlePrefixCommand(prefixCommandHandlers, command);
 
-      this.handleInit(commandHandlers, command);
+      this.handleInit(slashCommandHandlers, command);
     });
 
     this.client.on('ready', () => {
@@ -57,10 +73,10 @@ export default class Bot {
 
     this.client.on(Events.InteractionCreate, (interaction) => {
       if (interaction.isChatInputCommand()) {
-        this.handleInteraction(commandHandlers, interaction);
+        this.handleSlashCommand(slashCommandHandlers, interaction);
       }
       if (interaction.isButton()) {
-        this.handleButtonInteraction(commandHandlers, interaction);
+        this.handleButtonCommand(buttonCommandHandlers, interaction);
       }
     });
   }
@@ -76,8 +92,8 @@ export default class Bot {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  private handleCommand(
-    commandHandlers: ICommandDescription[],
+  private handlePrefixCommand(
+    commandHandlers: PrefixCommandDescription[],
     textCommand: ITextCommand,
   ) {
     console.log(`Received: ${textCommand.name} with ${textCommand.args}`);
@@ -97,19 +113,19 @@ export default class Bot {
     }
   }
 
-  private handleInteraction(
-    commandHandlers: ICommandDescription[],
+  private handleSlashCommand(
+    commandHandlers: SlashCommandDescription[],
     interaction: ChatInputCommandInteraction<CacheType>,
   ) {
     console.log(`Received interaction: ${interaction}`);
-    const currentHandler = commandHandlers.find((commandHandler) =>
-      commandHandler.commandMatchers.includes(interaction.commandName),
+    const currentHandler = commandHandlers.find(
+      (commandHandler) => commandHandler.name === interaction.commandName,
     );
     if (!currentHandler) {
       return;
     }
     try {
-      currentHandler.interactionHandler?.(interaction);
+      currentHandler.handler?.(interaction);
     } catch (error) {
       console.error(error);
       interaction.reply(
@@ -118,21 +134,21 @@ export default class Bot {
     }
   }
 
-  private handleButtonInteraction(
-    commandHandlers: ICommandDescription[],
+  private handleButtonCommand(
+    commandHandlers: ButtonCommandDescription[],
     interaction: ButtonInteraction<CacheType>,
   ) {
     console.log(
       `Received button interaction: ${JSON.stringify(interaction.customId)}`,
     );
-    const currentHandler = commandHandlers.find((commandHandler) =>
-      commandHandler.commandMatchers.includes(interaction.customId),
+    const currentHandler = commandHandlers.find(
+      (commandHandler) => commandHandler.name === interaction.customId,
     );
     if (!currentHandler) {
       return;
     }
     try {
-      currentHandler.interactionHandler?.(interaction);
+      currentHandler.handler(interaction);
     } catch (error) {
       console.error(error);
       interaction.reply(
@@ -143,7 +159,7 @@ export default class Bot {
 
   // eslint-disable-next-line class-methods-use-this
   private async handleInit(
-    commandHandlers: ICommandDescription[],
+    commandHandlers: SlashCommandDescription[],
     textCommand: ITextCommand,
   ) {
     if (textCommand.name !== 'register') return;
@@ -156,7 +172,7 @@ export default class Bot {
     }
 
     const commandsList = commandHandlers.map((command) => ({
-      name: command.commandMatchers[0],
+      name: command.name,
       description: command.description,
       options: [],
       name_localizations: undefined,
@@ -203,8 +219,8 @@ export default class Bot {
     };
   }
 
-  private loadCommandHandlers(): ICommandDescription[] {
-    const clientCommands: ICommandDescription[] = [];
+  private loadCommandHandlers(): CommandDescription[] {
+    const clientCommands: CommandDescription[] = [];
 
     this.commandBundles.forEach((commandBundle) =>
       Object.values(commandBundle).forEach((commandDescription) =>
@@ -214,21 +230,10 @@ export default class Bot {
     return clientCommands;
   }
 
-  broadcastOnAllTextChannels = (message: string) => {
-    this.client.channels.cache.forEach((channel) => {
-      if (channel instanceof TextChannel) {
-        channel.send(message);
-      }
-    });
-  };
-
   getHelpText = (): string => {
-    const cmds = this.commandBundles.reduce<ICommandDescription[]>(
-      (acc, curr) => {
-        const commandsDescriptions = Object.values(curr);
-        return [...acc, ...commandsDescriptions];
-      },
-      [],
+    const cmds = this.loadCommandHandlers().filter(
+      (command): command is PrefixCommandDescription =>
+        command.type === 'prefix',
     );
     let helpText = '';
     // eslint-disable-next-line no-restricted-syntax

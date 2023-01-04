@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-import { CommandHandler } from '../../../types/command-handler';
+import { PrefixCommandHandler } from '../../../types/command-handler';
 import { PollsService } from '../services/polls-service';
 import { handleError } from '../services/errors-handler';
 import { pullDiscordMessage } from './common/pull-message';
 
-export const pollVoteHandler: CommandHandler = async ({
+export const pollVoteHandler: PrefixCommandHandler = async ({
   discordMessage,
   args,
 }) => {
