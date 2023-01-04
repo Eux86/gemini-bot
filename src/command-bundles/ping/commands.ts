@@ -12,7 +12,6 @@ export const commands: ICommandsBundle = {
   pang: {
     type: 'button',
     name: 'pang',
-    description: '',
     handler: pangButtonHandler,
   },
 };
