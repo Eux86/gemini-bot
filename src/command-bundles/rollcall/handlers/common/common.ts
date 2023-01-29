@@ -4,14 +4,16 @@ import {
   ButtonInteraction,
   ButtonStyle,
   ChatInputCommandInteraction,
-  GuildTextBasedChannel,
-  Message,
+  Interaction,
   MessageCreateOptions,
-  TextBasedChannel,
 } from 'discord.js';
 import { IRollcall } from '../../types/rollcall';
 import { IRollcallService } from '../../types/rollcall-service';
 import { RollcallAlreadyExistException } from '../../services/errors';
+import {
+  NoChannelInInteractionException,
+  NoRollcallExistsException,
+} from './errors';
 
 const generateMessageContent = (rollcall: IRollcall) => `
 Rollcall started. Available commands: 
@@ -47,6 +49,20 @@ const generateMessageComponents = () => {
   return [row];
 };
 
+const getChannelIdFromInteraction = (interaction: Interaction): string => {
+  let channelId: string | undefined;
+  if (interaction.isChatInputCommand()) {
+    channelId = interaction.channel?.id;
+  }
+  if (interaction.isButton()) {
+    channelId = interaction.channelId;
+  }
+  if (!channelId) {
+    throw new NoChannelInInteractionException();
+  }
+  return channelId;
+};
+
 export const createRollcallMessage = (
   todayRollcall: IRollcall,
 ): MessageCreateOptions => {
@@ -60,123 +76,112 @@ export const createRollcallMessage = (
   return message;
 };
 
-const sendRollcallMessge = async (
+const sendNewRollcallMessge = async (
   rollcallService: IRollcallService,
-  channel: GuildTextBasedChannel | TextBasedChannel,
+  interaction: ChatInputCommandInteraction | ButtonInteraction,
   todayRollcall: IRollcall,
 ) => {
   const message = createRollcallMessage(todayRollcall);
-  const rollcallMessage = await channel.send(message);
+  const rollcallMessage = await interaction.editReply(message);
 
   await rollcallService.bindToMessage(todayRollcall, rollcallMessage);
 };
 
-export const rollcallPull = async (
-  rollcallService: IRollcallService,
-  channel: GuildTextBasedChannel | TextBasedChannel,
+const deleteMessageById = async (
+  messageId: string,
+  interaction: ChatInputCommandInteraction | ButtonInteraction,
 ) => {
   try {
-    const todayRollcall = await rollcallService.getToday(channel.id);
+    if (messageId) {
+      const oldRollcallMessage = await interaction.channel?.messages.fetch(
+        messageId,
+      );
+      await oldRollcallMessage?.delete();
+    }
+  } catch (e) {
+    if ((e as any).code !== 10008) {
+      throw e;
+    }
+  }
+};
+
+export const rollcallPull = async (
+  rollcallService: IRollcallService,
+  interaction: ChatInputCommandInteraction | ButtonInteraction,
+): Promise<IRollcall> => {
+  const channelId = getChannelIdFromInteraction(interaction);
+  try {
+    const todayRollcall = await rollcallService.getToday(channelId);
     if (!todayRollcall) {
-      await channel.send('There is no rollcall for today. Create one first!');
-      return;
+      await interaction.editReply(
+        'There is no rollcall for today. Create one first!',
+      );
+      throw new NoRollcallExistsException();
     }
     if (todayRollcall.messageId) {
-      const oldRollcallMessage = await channel.messages.fetch(
-        todayRollcall.messageId,
-      );
-      await oldRollcallMessage.delete();
+      await deleteMessageById(todayRollcall.messageId, interaction);
     }
-    await sendRollcallMessge(rollcallService, channel, todayRollcall);
+    await sendNewRollcallMessge(rollcallService, interaction, todayRollcall);
+    return todayRollcall;
   } catch (e) {
     if (e instanceof RollcallAlreadyExistException) {
-      await channel.send(
-        'Cannot start rollcall. A rollcall already exists for today: \n',
-      );
+      const message =
+        'Cannot start rollcall. A rollcall already exists for today: \n';
+      await interaction.editReply(message);
+      throw new Error(message);
     } else {
-      console.error(e);
-      await channel.send('Something went wrong :/');
+      const message = 'Something went wrong :/';
+      await interaction.editReply(message);
+      throw e;
     }
   }
 };
 
 export const startTodayRollcallAndSend = async (
   rollcallService: IRollcallService,
-  channel: GuildTextBasedChannel | TextBasedChannel,
+  interaction: ChatInputCommandInteraction | ButtonInteraction,
 ): Promise<IRollcall> => {
-  const todayRollcall = await rollcallService.startToday(channel.id);
-  await sendRollcallMessge(rollcallService, channel, todayRollcall);
-  return todayRollcall;
-};
-
-export const createRollCallOrPull = async (
-  rollcallService: IRollcallService,
-  channel: GuildTextBasedChannel | TextBasedChannel,
-): Promise<void> => {
-  try {
-    await startTodayRollcallAndSend(rollcallService, channel);
-  } catch (error) {
-    if (error instanceof RollcallAlreadyExistException) {
-      await rollcallPull(rollcallService, channel);
-    } else {
-      throw error;
-    }
+  if (!interaction.channel) {
+    throw new NoChannelInInteractionException();
   }
+  const todayRollcall = await rollcallService.startToday(
+    interaction.channel.id,
+  );
+  await sendNewRollcallMessge(rollcallService, interaction, todayRollcall);
+  return todayRollcall;
 };
 
 export const getOrCreateTodayRollcall = async (
-  channel: GuildTextBasedChannel | TextBasedChannel,
+  interaction: ChatInputCommandInteraction | ButtonInteraction,
   rollcallService: IRollcallService,
 ): Promise<IRollcall> => {
-  let todayRollcall = await rollcallService.getToday(channel.id);
+  const channelId = getChannelIdFromInteraction(interaction);
+  let todayRollcall = await rollcallService.getToday(channelId);
   if (!todayRollcall) {
-    await channel.send(
+    await interaction.reply(
       'There is no rollcall for today. I am creating one for you <3',
     );
-    todayRollcall = await startTodayRollcallAndSend(rollcallService, channel);
+    todayRollcall = await startTodayRollcallAndSend(
+      rollcallService,
+      interaction,
+    );
   }
   return todayRollcall;
 };
 
-export const updateExistingRollcall = async (
-  discordMessage: Message,
-  todayRollcall: IRollcall,
-) => {
-  if (todayRollcall.messageId) {
-    const oldRollcallMessage = await discordMessage.channel.messages.fetch(
-      todayRollcall.messageId,
-    );
-    await oldRollcallMessage.edit(createRollcallMessage(todayRollcall));
-  }
-};
-
-export const createOrPullRollcallFromInteraction = async (
+export const createOrPullRollcall = async (
   rollcallService: IRollcallService,
   interaction: ChatInputCommandInteraction | ButtonInteraction,
 ) => {
   try {
-    const { channel } = interaction;
-    if (!channel) throw new Error('No channel in message');
-    let todayRollcal = await rollcallService.getToday(channel.id);
+    await interaction.deferReply();
+    const channelId = getChannelIdFromInteraction(interaction);
+    const todayRollcal = await rollcallService.getToday(channelId);
     if (!todayRollcal) {
-      todayRollcal = await rollcallService.create(channel.id);
+      await startTodayRollcallAndSend(rollcallService, interaction);
     } else if (todayRollcal.messageId) {
-      try {
-        const oldRollcallMessage = await interaction.channel?.messages.fetch(
-          todayRollcal.messageId,
-        );
-        await oldRollcallMessage?.delete();
-      } catch (error) {
-        if ((error as any)?.code !== 10008) throw error; // Message not found
-      }
+      await rollcallPull(rollcallService, interaction);
     }
-    const content = createRollcallMessage(todayRollcal);
-    const newMessage = await interaction.reply({
-      content: content.content,
-      components: content.components,
-      fetchReply: true,
-    });
-    await rollcallService.bindToMessage(todayRollcal, newMessage);
   } catch (e) {
     console.error(e);
     await interaction.reply(`Something went wrong :/\n${e}`);

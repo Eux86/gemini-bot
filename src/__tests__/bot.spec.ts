@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { CacheType, Interaction } from 'discord.js';
 import Bot from '../bot';
 import { ITextCommand } from '../types/text-command';
 import { ICommandsBundle } from '../types/command-handler';
@@ -8,14 +8,18 @@ import { MockClient } from '../__mocks__/discord-client';
 // This simulates a message sent from a discord user
 const spyReply = jest.fn();
 const spyChannelSend = jest.fn();
-const createUserChatMessage: (text: string) => Message = (text) =>
+const createUserChatMessage: (text: string) => Interaction<CacheType> = (
+  text,
+) =>
   ({
-    content: text,
-    reply: spyReply,
-    channel: {
-      send: spyChannelSend,
+    message: {
+      content: text,
+      reply: spyReply,
+      // channel: {
+      //   send: spyChannelSend,
+      // },
     },
-  } as unknown as Message);
+  } as unknown as Interaction<CacheType>);
 
 // jest.mock('discord.js')
 // jest
