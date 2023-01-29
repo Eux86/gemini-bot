@@ -18,7 +18,7 @@ export const notHereButtonHandler: ButtonCommandHandler = async (
   }
   try {
     const todayRollcall = await getOrCreateTodayRollcall(
-      interaction.channel,
+      interaction,
       rollcallService,
     );
     await rollcallService.removeParticipant(

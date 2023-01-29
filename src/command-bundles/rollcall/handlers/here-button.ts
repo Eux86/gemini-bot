@@ -7,6 +7,7 @@ import {
 import { RollcallUserAlreadyRegisteredException } from '../services/errors';
 
 export const hereButtonHandler: ButtonCommandHandler = async (interaction) => {
+  await interaction.deferUpdate();
   const rollcallService = await RollcallService.getInstance();
   if (!interaction.channel) {
     await interaction.reply('Something went wrong');
@@ -15,14 +16,13 @@ export const hereButtonHandler: ButtonCommandHandler = async (interaction) => {
   }
   try {
     const todayRollcall = await getOrCreateTodayRollcall(
-      interaction.channel,
+      interaction,
       rollcallService,
     );
     await rollcallService.addParticipant(
       todayRollcall,
       interaction.user.username,
     );
-    await interaction.deferUpdate();
     await interaction.editReply(createRollcallMessage(todayRollcall));
   } catch (e) {
     if (e instanceof RollcallUserAlreadyRegisteredException) {
