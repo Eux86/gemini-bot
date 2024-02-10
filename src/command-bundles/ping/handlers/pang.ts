@@ -1,8 +1,5 @@
-import { ButtonCommandHandler } from '../../../types/command-handler';
+import { CommandHandler } from '../../../types/command-handler';
 
-export const pangButtonHandler: ButtonCommandHandler = async (interaction) => {
-  if (interaction.isButton()) {
-    await interaction.deferReply();
-    await interaction.editReply('Pung!');
-  }
+export const pangButtonHandler: CommandHandler = async (interaction) => {
+  await interaction.reply({ content: 'pang response' });
 };

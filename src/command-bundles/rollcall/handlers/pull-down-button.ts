@@ -1,10 +1,8 @@
-import { RollcallService } from '../services/rollcall-service';
-import { ButtonCommandHandler } from '../../../types/command-handler';
-import { createOrPullRollcall } from './common/common';
+import { CommandHandler } from '../../../types/command-handler';
+import { RollcallRenderer } from './common/rollcall-renderer';
 
-export const pullDownButtonHandler: ButtonCommandHandler = async (
-  interaction,
-) => {
-  const rollcallService = await RollcallService.getInstance();
-  await createOrPullRollcall(rollcallService, interaction);
+export const pullDownButtonHandler: CommandHandler = async (command) => {
+  const rollcallRenderer = new RollcallRenderer();
+
+  return rollcallRenderer.rollcall(command);
 };

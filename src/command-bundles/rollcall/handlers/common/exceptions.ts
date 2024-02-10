@@ -10,3 +10,9 @@ export class NoRollcallExistsException extends Error {
     super('No rollcall already exist');
   }
 }
+
+export class MessageNotFoundException extends Error {
+  constructor() {
+    super('Message not found');
+  }
+}

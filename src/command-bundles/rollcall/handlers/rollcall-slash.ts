@@ -1,10 +1,8 @@
-import { RollcallService } from '../services/rollcall-service';
-import { SlashCommandHandler } from '../../../types/command-handler';
-import { createOrPullRollcall } from './common/common';
+import { CommandHandler } from '../../../types/command-handler';
+import { RollcallRenderer } from './common/rollcall-renderer';
 
-export const rollcallSlashHandler: SlashCommandHandler = async (
-  interaction,
-) => {
-  const rollcallService = await RollcallService.getInstance();
-  await createOrPullRollcall(rollcallService, interaction);
+export const rollcallHandler: CommandHandler = async (command) => {
+  const rollcallRenderer = new RollcallRenderer();
+
+  return rollcallRenderer.rollcall(command);
 };

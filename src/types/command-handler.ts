@@ -1,31 +1,35 @@
-import { ButtonInteraction, ChatInputCommandInteraction } from 'discord.js';
-import { ITextCommand } from './text-command';
+import {
+  IChannel,
+  IMessage,
+  ReplyPayload,
+} from '../command-service/command-service.interface';
 
-export type PrefixCommandHandler = (command: ITextCommand) => Promise<void>;
-export type SlashCommandHandler = (
-  command: ChatInputCommandInteraction,
-) => Promise<void>;
-export type ButtonCommandHandler = (
-  command: ButtonInteraction,
-) => Promise<void>;
+export type CommandHandler = (command: Command) => Promise<void>;
+
+export interface Command {
+  args: any;
+  channel: IChannel;
+  username: string;
+  reply: (replyPayload: ReplyPayload) => Promise<IMessage>;
+}
 
 export interface PrefixCommandDescription {
   type: 'prefix';
-  commandMatchers: string[];
+  name: string;
   isSecret: boolean;
   description: string;
-  handler: PrefixCommandHandler;
+  handler: CommandHandler;
 }
 export interface SlashCommandDescription {
   type: 'slash';
   name: string;
   description: string;
-  handler: SlashCommandHandler;
+  handler: CommandHandler;
 }
 export interface ButtonCommandDescription {
   type: 'button';
   name: string;
-  handler: ButtonCommandHandler;
+  handler: CommandHandler;
 }
 
 export type CommandDescription =

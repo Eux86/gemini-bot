@@ -13,10 +13,6 @@ export class RollcallRepo implements IRollcallRepo {
     },
   };
 
-  constructor() {
-    console.log(this.config);
-  }
-
   private readonly firestore = new Firestore(this.config);
 
   public set = async (rollcalls: IRollcall[]) => {
@@ -28,7 +24,6 @@ export class RollcallRepo implements IRollcallRepo {
       }),
       {},
     );
-    console.log(mapped);
     await rollcallDocument.set(mapped);
   };
 

@@ -1,5 +1,5 @@
 import { ICommandsBundle } from '../../types/command-handler';
-import { rollcallSlashHandler } from './handlers/rollcall-slash';
+import { rollcallHandler } from './handlers/rollcall-slash';
 import { hereButtonHandler } from './handlers/here-button';
 import { notHereButtonHandler } from './handlers/not-here-button';
 import { pullDownButtonHandler } from './handlers/pull-down-button';
@@ -14,7 +14,7 @@ export const commands: ICommandsBundle = {
     type: 'slash',
     name: 'rollcall',
     description: 'Create a rollcall for today in this channel',
-    handler: rollcallSlashHandler,
+    handler: rollcallHandler,
   },
   hereButton: {
     type: 'button',

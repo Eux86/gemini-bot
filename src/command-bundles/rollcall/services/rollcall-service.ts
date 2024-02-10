@@ -1,5 +1,4 @@
 /* eslint-disable no-param-reassign */
-import { Message } from 'discord.js';
 import { IRollcall } from '../types/rollcall';
 import { IRollcallService } from '../types/rollcall-service';
 import { IRollcallRepo } from '../types/rollcall-repo';
@@ -121,9 +120,9 @@ export class RollcallService implements IRollcallService {
 
   public bindToMessage = async (
     rollcall: IRollcall,
-    message: Message,
+    messageId: string,
   ): Promise<void> => {
-    rollcall.messageId = message.id;
+    rollcall.messageId = messageId;
     await this.repo.set(this.rollcalls);
   };
 
