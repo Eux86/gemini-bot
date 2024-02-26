@@ -22,7 +22,6 @@ export class DiscordJsMessage implements IMessage {
   }
 
   async delete(): Promise<void> {
-    console.log('delete', this.message);
     await this.message.delete();
   }
 }

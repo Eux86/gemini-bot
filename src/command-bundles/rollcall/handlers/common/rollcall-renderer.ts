@@ -5,7 +5,11 @@ import {
   RollcallUserAlreadyRegisteredException,
 } from '../../services/errors';
 import { Command } from '../../../../types/command-handler';
-import { rollcallInteractions, rollcallTemplate } from './rollcall-template';
+import {
+  excuses,
+  rollcallInteractions,
+  rollcallTemplate,
+} from './rollcall-template';
 
 export class RollcallRenderer {
   public rollcall = async (command: Command) => {
@@ -78,7 +82,10 @@ export class RollcallRenderer {
     }
   };
 
-  public removeParticipant = async (command: Command) => {
+  public removeParticipant = async (
+    command: Command,
+    excuse: string | undefined,
+  ) => {
     const rollcallService = await RollcallService.getInstance();
     const todayRollcall = await rollcallService.getToday(command.channel.id);
     if (!todayRollcall) {
@@ -98,10 +105,14 @@ export class RollcallRenderer {
             todayRollcall.participants,
             todayRollcall.notParticipants,
           );
-          const response = await command.reply({
-            content: 'done',
-          });
-          await response.delete();
+          if (excuse) {
+            await command.reply({ content: excuse });
+          } else {
+            const response = await command.reply({
+              content: 'done',
+            });
+            await response.delete();
+          }
         } catch (e) {
           if (e instanceof RollcallUserAlreadyNotRegisteredException) {
             const response = await command.reply({
@@ -113,6 +124,12 @@ export class RollcallRenderer {
         }
       }
     }
+  };
+
+  public excuseMe = async (command: Command) => {
+    const randomIndex = Math.floor(Math.random() * excuses.length);
+    const randomExcuse = excuses[randomIndex];
+    await this.removeParticipant(command, randomExcuse);
   };
 
   private update = async (

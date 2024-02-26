@@ -3,6 +3,7 @@ import { rollcallHandler } from './handlers/rollcall-slash';
 import { hereButtonHandler } from './handlers/here-button';
 import { notHereButtonHandler } from './handlers/not-here-button';
 import { pullDownButtonHandler } from './handlers/pull-down-button';
+import { excuseMeButton } from './handlers/excuse-me';
 
 export const commands: ICommandsBundle = {
   pullDownButton: {
@@ -25,5 +26,10 @@ export const commands: ICommandsBundle = {
     type: 'button',
     name: 'notHereButton',
     handler: notHereButtonHandler,
+  },
+  excuseMeButton: {
+    type: 'button',
+    name: 'excuseMeButton',
+    handler: excuseMeButton,
   },
 };
