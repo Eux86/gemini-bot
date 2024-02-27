@@ -129,7 +129,36 @@ export class RollcallRenderer {
   public excuseMe = async (command: Command) => {
     const randomIndex = Math.floor(Math.random() * excuses.length);
     const randomExcuse = excuses[randomIndex];
-    await this.removeParticipant(command, randomExcuse);
+
+    const rollcallService = await RollcallService.getInstance();
+    const todayRollcall = await rollcallService.getToday(command.channel.id);
+    if (!todayRollcall) {
+      await command.reply({ content: 'There is no rollcall for today' });
+    } else {
+      if (!todayRollcall.messageId) {
+        await command.reply({ content: 'Could not find the rollcall message' });
+      } else {
+        try {
+          await rollcallService.removeParticipant(
+            todayRollcall,
+            command.username,
+          );
+          await this.update(
+            command,
+            todayRollcall.messageId,
+            todayRollcall.participants,
+            todayRollcall.notParticipants,
+          );
+        } catch (e) {
+          if (!(e instanceof RollcallUserAlreadyNotRegisteredException)) {
+            throw e;
+          }
+        }
+        await command.reply({
+          content: `${command.username} ha mandato questo messaggio per spiegare perché oggi non puó partecipare: \n"_${randomExcuse}_"`,
+        });
+      }
+    }
   };
 
   private update = async (
