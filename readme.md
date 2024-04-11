@@ -6,4 +6,4 @@
 
 # Configuration:
 
-Check the `.env.example` file to see all the configuration keys that can be used as environment variables.
+Check the `.env.example` file to see all the configuration keys that can be used as environment variables..
